@@ -36,36 +36,48 @@ const elCache = new WeakMap()
 // If an element is removed from the document then turn it off
 // Have to account for nodes being added to removed outside of the document
 const documentObserver = new MutationObserver((mutationList, mutationObserver) => {
-  // Compile a flat set of added/removed elements
-  const addedAndRemovedElements = new Set()
-  for (const mutationRecord of mutationList) {
-    for (const addedNode of Array.from(mutationRecord.addedNodes)) {
-      if (addedNode.nodeType === Node.ELEMENT_NODE) {
-        addedAndRemovedElements.add(addedNode)
-      }
-    }
-    for (const removedNode of Array.from(mutationRecord.removedNodes)) {
-      if (removedNode.nodeType === Node.ELEMENT_NODE) {
-        addedAndRemovedElements.add(removedNode)
-      }
-    }
-  }
-  // Do stuff to the nodes
-  for (const mutatedElement of addedAndRemovedElements) {
-    subtreeDo(mutatedElement, (element) => {
-      const elementElInterface = elCache.get(element)
-      if (elementElInterface) {
-        if (document.contains(element)) {
-          for (const obs of elementElInterface.observers) {
-            obs.start()
-          }
-        } else {
-          for (const obs of elementElInterface.observers) {
-            obs.stop()
-          }
+  try {
+    // Compile a flat set of added/removed elements
+    const addedAndRemovedElements = new Set()
+    for (const mutationRecord of mutationList) {
+      for (const addedNode of Array.from(mutationRecord.addedNodes)) {
+        if (addedNode.nodeType === Node.ELEMENT_NODE) {
+          addedAndRemovedElements.add(addedNode)
         }
       }
-    })
+      for (const removedNode of Array.from(mutationRecord.removedNodes)) {
+        if (removedNode.nodeType === Node.ELEMENT_NODE) {
+          addedAndRemovedElements.add(removedNode)
+        }
+      }
+    }
+    // Do stuff to the nodes
+    for (const mutatedElement of addedAndRemovedElements) {
+      subtreeDo(mutatedElement, (element) => {
+        const elementElInterface = elCache.get(element)
+        if (elementElInterface) {
+          if (document.contains(element)) {
+            for (const obs of elementElInterface.observers) {
+              try {
+                obs.start()
+              } catch (error) {
+                console.warn('Failed to start observer:', error)
+              }
+            }
+          } else {
+            for (const obs of elementElInterface.observers) {
+              try {
+                obs.stop()
+              } catch (error) {
+                console.warn('Failed to stop observer:', error)
+              }
+            }
+          }
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Error in document mutation observer:', error)
   }
 })
 documentObserver.observe(document, { subtree: true, childList: true })
@@ -75,10 +87,18 @@ documentObserver.observe(document, { subtree: true, childList: true })
 // Maps the observer start end and observer itself to each other
 const observerTrios = new WeakMap()
 const commentObserver = new MutationObserver((mutationList, mutationObserver) => {
-  for (const mutationRecord of mutationList) {
-    for (const removedNode of Array.from(mutationRecord.removedNodes)) {
-      observerTrios.get(removedNode)?.clear()
+  try {
+    for (const mutationRecord of mutationList) {
+      for (const removedNode of Array.from(mutationRecord.removedNodes)) {
+        try {
+          observerTrios.get(removedNode)?.clear()
+        } catch (error) {
+          console.warn('Failed to clear observer trio:', error)
+        }
+      }
     }
+  } catch (error) {
+    console.error('Error in comment mutation observer:', error)
   }
 })
 
@@ -291,4 +311,4 @@ export function bind (reactor, key) {
   }
 }
 
-export * from 'reactorjs'
+export { Observer, Reactor, hide, batch, shuck } from 'reactorjs'
