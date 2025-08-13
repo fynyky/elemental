@@ -330,4 +330,10 @@ export function bind (reactor, key) {
   }
 }
 
+// Shorthand for making new observers
+// el('foo', ob(() => {}))
+export function ob (x) {
+  return new Observer(x)
+}
+
 export { Observer, Reactor, hide, batch, shuck } from 'reactorjs'

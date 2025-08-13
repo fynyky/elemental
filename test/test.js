@@ -1,9 +1,8 @@
 /* eslint-env mocha */
 /* global assert */
 
-import { el, attr, bind } from '../src/index.js'
+import { el, attr, bind, ob } from '../src/index.js'
 import { Observer, Reactor } from 'reactorjs'
-const ob = (x) => new Observer(x)
 
 describe('Element creation', () => {
   it('can create a basic div', () => {
