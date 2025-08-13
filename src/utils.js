@@ -1,0 +1,76 @@
+// Manually compiled list of valid HTML tags
+// Used when creating a new `el`
+// If the string matches a named tag it will create that element
+// If it does not match it will just make a div with the string as a class name
+export const VALID_HTML_TAGS = Object.freeze([
+  'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio',
+  'b', 'base', 'basefont', 'bdi', 'bdo', 'bgsound', 'big', 'blockquote', 'body', 'br', 'button',
+  'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup', 'command',
+  'data', 'datagrid', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt',
+  'em', 'embed', 'eventsource',
+  'fieldset', 'figcaption', 'figure', 'font', 'footer', 'form', 'frame', 'frameset',
+  'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html',
+  'i', 'iframe', 'img', 'input', 'ins', 'isindex',
+  'kbd', 'keygen',
+  'label', 'legend', 'li', 'link', 'listing',
+  'main', 'map', 'mark', 'menu', 'menuitem', 'meta', 'meter',
+  'nav', 'noframes', 'noscript',
+  'object', 'ol', 'optgroup', 'option', 'output',
+  'p', 'param', 'plaintext', 'pre', 'progress',
+  'q',
+  'ruby', 'rp', 'rt',
+  's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup',
+  'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'tt',
+  'u', 'ul',
+  'var', 'video',
+  'wbr', 'xmp'
+])
+
+
+// Helper function to get all comment nodes for a given subtree
+export function getAllComments (root) {
+  const commentIterator = document.createNodeIterator(
+    root,
+    NodeFilter.SHOW_COMMENT,
+    () => NodeFilter.FILTER_ACCEPT
+  )
+  const commentList = []
+  let nextComment = commentIterator.nextNode()
+  while (nextComment !== null) {
+    commentList.push(nextComment)
+    nextComment = commentIterator.nextNode()
+  }
+  return commentList
+}
+
+// Helper function to get all nodes between 2 nodes
+export function getNodesBetween (startNode, endNode) {
+  if (
+    startNode.parentNode === null ||
+    endNode.parentNode === null ||
+    startNode.parentNode !== endNode.parentNode
+  ) throw new RangeError('endNode could not be reached from startNode')
+  const result = []
+  let currentNode = startNode.nextSibling
+  while (currentNode !== endNode) {
+    if (currentNode === null) {
+      throw new RangeError('endNode could not be reached from startNode')
+    }
+    result.push(currentNode)
+    currentNode = currentNode.nextSibling
+  }
+  return result
+}
+
+// Simple check for a query selector over creating a tag
+// Problem is that a plain text string is a valid tag search
+// We check for the common cases of . # and [
+// Just skip starting with tag search
+// TODO consider if there are better ways to do this
+export function isQuerySelector (testString) {
+  return (typeof testString === 'string' && (
+    testString.startsWith('.') ||
+    testString.startsWith('#') ||
+    testString.startsWith('[')
+  ))
+}
