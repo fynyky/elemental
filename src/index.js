@@ -42,95 +42,66 @@ const VALID_HTML_TAGS = Object.freeze([
   'wbr', 'xmp'
 ])
 
-// Maps normal Elements to their elInterface which enables the magic
-// Used to stop the observers when disconnected from the document
-const elCache = new WeakMap()
-
-// Setup a mutation observer
-// If an element is removed from the document then turn it off
-// Have to account for nodes being added to removed outside of the document
-const documentObserver = new MutationObserver((mutationList, mutationObserver) => {
-  try {
-    // Compile a flat set of added/removed elements
-    const addedAndRemovedElements = new Set()
-    for (const mutationRecord of mutationList) {
-      for (const addedNode of Array.from(mutationRecord.addedNodes)) {
-        if (addedNode.nodeType === Node.ELEMENT_NODE) {
-          addedAndRemovedElements.add(addedNode)
-        }
-      }
-      for (const removedNode of Array.from(mutationRecord.removedNodes)) {
-        if (removedNode.nodeType === Node.ELEMENT_NODE) {
-          addedAndRemovedElements.add(removedNode)
-        }
+// Mechanism to automatically start and stop observers when elements are added and removed from the DOM
+// This avoids leaking "orphan" observers that stay alive updating nodes that no longer are relevant
+// Note: MutationObserver is native class and unrelated to reactor.js observers
+const docObserver = new MutationObserver((mutationList, mutationObserver) => {
+  for (const mutationRecord of mutationList) {
+    // Collect all the removed nodes and their observers
+    const observersToStop = new Set()
+    for (const removedNode of Array.from(mutationRecord.removedNodes)) {
+      const comments = getAllComments(removedNode)
+      for (const comment of comments) {
+        const observer = observerTrios.get(comment)?.observer
+        if (observer) observersToStop.add(observer)
       }
     }
-    // Do stuff to the nodes
-    for (const mutatedElement of addedAndRemovedElements) {
-      subtreeDo(mutatedElement, (element) => {
-        const elementElInterface = elCache.get(element)
-        if (elementElInterface) {
-          if (document.contains(element)) {
-            for (const obs of elementElInterface.observers) {
-              try {
-                obs.start()
-              } catch (error) {
-                console.warn('Failed to start observer:', error)
-              }
-            }
-          } else {
-            for (const obs of elementElInterface.observers) {
-              try {
-                obs.stop()
-              } catch (error) {
-                console.warn('Failed to stop observer:', error)
-              }
-            }
-          }
-        }
-      })
+    // Collect all the added nodes and their observers
+    const observersToStart = new Set()
+    for (const addedNode of Array.from(mutationRecord.addedNodes)) {
+      const comments = getAllComments(addedNode)
+      for (const comment of comments) {
+        const observer = observerTrios.get(comment)?.observer
+        if (observer) observersToStart.add(observer)
+      }
     }
-  } catch (error) {
-    console.error('Error in document mutation observer:', error)
+    // Stop before starting incase an observer is added and removed in the same mutation
+    for (const observer of observersToStop) observer.stop()
+    for (const observer of observersToStart) observer.start()
   }
 })
-documentObserver.observe(document, { subtree: true, childList: true })
+docObserver.observe(document, { subtree: true, childList: true })
 
-// Tracks when observer comment placeholders are removed
-// When they are remove their partner as well and deactivate their observer
-// Maps the observer start end and observer itself to each other
+// When an observer is attached to an element, a pair of comment nodes are
+// created to mark the "location" of the observer within the parent.
+// These comments are meant to act as proxies for the observer within the DOM.
+// When a comment is removed, so is its partner and the observer they represent
+// This defines the MutationObserver but it is only activated on the creation of each `el` element
+// This is unlike the docObserver which is activated on the creation of each element
+// This is so comment nodes are removed together even when their parent is out of the DOM
 const observerTrios = new WeakMap()
-const commentObserver = new MutationObserver((mutationList, mutationObserver) => {
-  try {
-    for (const mutationRecord of mutationList) {
-      for (const removedNode of Array.from(mutationRecord.removedNodes)) {
-        try {
-          observerTrios.get(removedNode)?.clear()
-        } catch (error) {
-          console.warn('Failed to clear observer trio:', error)
-        }
-      }
+const bookmarkObserver = new MutationObserver((mutationList, mutationObserver) => {
+  for (const mutationRecord of mutationList) {
+    for (const removedNode of Array.from(mutationRecord.removedNodes)) {
+      observerTrios.get(removedNode)?.clear()
     }
-  } catch (error) {
-    console.error('Error in comment mutation observer:', error)
   }
 })
 
-// Helper function to do things to all elements in a subtree
-function subtreeDo (target, callback) {
-  if (!(target instanceof Element)) {
-    throw new TypeError(
-      'target is not an instance of Element'
-    )
+// Helper function to get all comment nodes for a given subtree
+function getAllComments (root) {
+  const commentIterator = document.createNodeIterator(
+    root,
+    NodeFilter.SHOW_COMMENT,
+    () => NodeFilter.FILTER_ACCEPT
+  )
+  const commentList = []
+  let nextComment = commentIterator.nextNode()
+  while (nextComment !== null) {
+    commentList.push(nextComment)
+    nextComment = commentIterator.nextNode()
   }
-  if (!(typeof callback === 'function')) {
-    throw new TypeError(
-      'callback is not a function'
-    )
-  }
-  const descendents = target.getElementsByTagName('*')
-  callback(target)
-  for (const descendent of descendents) callback(descendent)
+  return commentList
 }
 
 // Helper function to get all nodes between 2 nodes
@@ -170,6 +141,7 @@ const isQuerySelector = (testString) => (
 // Subsequent arguments are children to attach
 // Returns the element with all the stuff attached
 export const el = (descriptor, ...children) => {
+
   // Create the new element or wrap an existing one
   // If its an existing element dont do anything
   let self
@@ -188,23 +160,10 @@ export const el = (descriptor, ...children) => {
     newElement.className = descriptor
     self = newElement
   } else {
-    throw new TypeError('el descriptor expects string or existing Element')
+    throw new TypeError('el descriptor expects a String or an Element')
   }
-
-  // Now that we know who we are
-  // See if there's already a wrapper
-  // Place to store el specific properties and methods
-  // without polluting the Element
-  let elInterface = elCache.get(self)
-  if (typeof elInterface === 'undefined') {
-    elInterface = {
-      // Map of observers to a Set of elements they create
-      // Should this be weakrefmap?
-      observers: new Set()
-    }
-    elCache.set(self, elInterface)
-  }
-  commentObserver.observe(self, { subtree: false, childList: true })
+  // Attach the MutationObserver to cleanly remove observer markers
+  bookmarkObserver.observe(self, { childList: true })
 
   // For the children
   // If it's a string, append it as a text node
@@ -256,7 +215,6 @@ export const el = (descriptor, ...children) => {
     // On subsequent triggers. Observers first clear everything
     // between bookends
     } else if (child instanceof Observer) {
-      elInterface.observers.add(child)
       // Start with the bookends marking the observer domain
       const observerStartNode = document.createComment('observerStart')
       const observerEndNode = document.createComment('observerEnd')
@@ -273,7 +231,6 @@ export const el = (descriptor, ...children) => {
           this.end.remove()
           this.observer.stop()
           // TODO: consider whether I should map and remove the meta observer instead
-          elInterface.observers.delete(this.observer)
         }
       }
       observerTrios.set(observerStartNode, observerTrio)
@@ -322,9 +279,9 @@ export const el = (descriptor, ...children) => {
       throw new TypeError(`Invalid child type: ${typeof child}`)
     }
   }
-
   // Arguments are treated same as an array`
   append(children)
+  
   // Return the raw DOM element
   // Magic wrapping held in a pocket dimension outside of time and space
   return self
