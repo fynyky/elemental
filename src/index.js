@@ -192,21 +192,34 @@ export const el = (descriptor, ...children) => {
   commentObserver.observe(self, { subtree: false, childList: true })
 
   // For the children
-  // If its a string, then just append it as a text node child
-  // If its an existing element, then append it as a child
-  // If its a function, execute it in the context. Append return values
-  // If its an observer ???
+  // If it's a string, append it as a text node
+  // If it's an Element or DocumentFragment, append it directly
+  // If it's an iterable (array), recursively append each child
+  // If it's a Promise, create a placeholder and resolve it asynchronously
+  // If it's a function, execute it in the element's context and append return values
+  // If it's an Observer, create bookend comments and handle it like a reactive function
+  // If it's none of the above, throw a TypeError
+  // TODO: Consider failure strategy. Fail fast or fail forward
+  // Currently we fail fast. The idea is to be simple syntactic sugar with minimal inner workings
+  // We could fail forward instead, dropping the failed children and continuing with the rest
+  // This would be more robust, but would be more complex to reason about
+  // For example with arrays, we fail fast so upon a malformed child we halt and don't append the rest of the array
+  // We could fail forward by catching errors and appending the rest of the array without the malformed child
   function append (child, insertionPoint) {
     // If the insertion point given is no longer attached
     // Then abort the insertion
-    if (insertionPoint && insertionPoint.parentElement !== self) return false
+    if (insertionPoint && insertionPoint.parentElement !== self) {
+      throw new Error('Append insertion point is no longer attached to the element')
+    }
     // Strings are just appended as text
     if (typeof child === 'string') {
       const textNode = document.createTextNode(child)
       self.insertBefore(textNode, insertionPoint)
+      return
     // Existing elements are just appended
     } else if (child instanceof Element || child instanceof DocumentFragment) {
       self.insertBefore(shuck(child), insertionPoint)
+      return
     // Promises get an immediate placeholder before they resolve
     // If the placeholder is removed before the promise resolves. Nothing happens
     // With observers, this means only the latest promise will get handled
@@ -214,9 +227,11 @@ export const el = (descriptor, ...children) => {
       const promisePlaceholder = document.createComment('promisePlaceholder')
       self.insertBefore(promisePlaceholder, insertionPoint)
       child.then(value => {
-        append(value, promisePlaceholder)
+        if (typeof value !== 'undefined') append(value, promisePlaceholder)
+      }).finally(() => {
         promisePlaceholder.remove()
       })
+      return
     // Observers work similarly to functions
     // but with comment "bookends" on to demark their position
     // On initial commitment. Observers work like normal functions
@@ -239,6 +254,7 @@ export const el = (descriptor, ...children) => {
           this.start.remove()
           this.end.remove()
           this.observer.stop()
+          // TODO: consider whether I should map and remove the meta observer instead
           elInterface.observers.delete(this.observer)
         }
       }
@@ -248,17 +264,17 @@ export const el = (descriptor, ...children) => {
 
       // Observe the observer to append the results
       // Check if the bookmarks are still attached before acting
-      // Clear everything in between the bookmarks (including observers)
+      // Clear everything in between the bookmarks (including other observers)
       // Then insert new content between them
       new Observer(() => {
         const result = child.value
-        if (typeof result !== 'undefined' && observerEndNode.parentNode === self) {
+        if (observerStartNode.parentNode === self && observerEndNode.parentNode === self) {
           const oldChildren = getNodesBetween(observerStartNode, observerEndNode)
           for (const oldChild of oldChildren) {
             oldChild.remove()
             observerTrios.get(oldChild)?.clear()
           }
-          append(result, observerEndNode)
+          if (typeof result !== 'undefined') append(result, observerEndNode)
         }
       }).start()
       // Kickoff the observer with a context of self
@@ -268,27 +284,31 @@ export const el = (descriptor, ...children) => {
       child.start()
       // If it is not yet in the document then stop observer from triggering further
       if (!document.contains(self)) child.stop()
-
+      return
     // Need this to come after cos observers are functions themselves
     // we use call(self, self) to provide this for traditional functions
     // and to provide (ctx) => {...} for arrow functions
     } else if (typeof child === 'function') {
       const result = child.call(self, self)
-      // TODO wrap this in a try block (fail cleanly if nothing to append?)
-      if (typeof result !== 'undefined') append(result, insertionPoint)
+      if (typeof result !== 'undefined') {
+        append(result, insertionPoint)
+      }
+      return
     // Arrays are handled recursively
     // Works for any sort of iterable
     } else if (typeof child?.[Symbol.iterator] === 'function') {
       for (const grandChild of child) {
         append(grandChild, insertionPoint)
       }
-    // Anything else isnt meant to be appended
+      return
+    // Anything else isn't meant to be appended
     } else {
-      throw new TypeError('expects string, function, an Element, or an Array of them')
+      throw new TypeError(`Invalid child type: ${typeof child}`)
     }
   }
-  children.forEach((child) => append(child))
 
+  // Arguments are treated same as an array`
+  append(children)
   // Return the raw DOM element
   // Magic wrapping held in a pocket dimension outside of time and space
   return self
