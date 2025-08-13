@@ -1,28 +1,29 @@
 /* eslint-env browser */
 
+// Elementary.js - Declarative DOM Generation Library
+// 
 // Provides a function `el` that enables a declarative syntax for DOM generation
-// in plain javascript. The first argument is what type of element to create.
-// The subsequent arguments are appended as child nodes. If the "child" argument
-// is a function, it is executed in the context of the parent node.
-
-// By nesting `el` calls we have a plain javascript alternative to HTML that
-// also allows for inline logic. This unifies the DOM and closure hierarchy,
-// creating a single consistent context for UI creation.
-
-// When an Observer from reactor.js is passed as a child argument, it's return
-// is automatically attached to the parent each time the observer triggers,
-// replacing the previous iterations if any. Attached Observers are also
-// automatically disabled when their parent element is removed from the DOM.
+// in plain JavaScript. The first argument specifies the element type to create,
+// and subsequent arguments are appended as child nodes.
+// 
+// When a child argument is a function, it's executed in the context of the parent node.
+// By nesting `el` calls, we have a plain JavaScript alternative to HTML that also
+// allows for inline logic, unifying the DOM and closure hierarchy.
+// 
+// Reactivity is handled using reactor.js Observers.
+// When an Observer is passed as a child, it initially renders its content like a normal function.
+// On subsequent updates, it clears the old content and inserts the new content.
+// This enables automatic UI updates when the underlying data changes.
 
 import { Observer, shuck } from 'reactorjs'
 import { getAllComments, getNodesBetween, isQuerySelector, VALID_HTML_TAGS } from './utils.js'
 
-// Mechanism to automatically start and stop observers when elements are added and removed from the DOM
-// This avoids leaking "orphan" observers that stay alive updating nodes that no longer are relevant
-// Note: MutationObserver is native class and unrelated to reactor.js observers
+// Automatically start/stop observers when elements are added/removed from the DOM. 
+// This prevents "orphan" observers from staying alive and updating nodes that are no longer relevant.
+// Note: MutationObserver is native browser class and unrelated to reactor.js Observers
 const docObserver = new MutationObserver((mutationList, mutationObserver) => {
   for (const mutationRecord of mutationList) {
-    // Collect all the removed nodes and their observers
+    // Collect all removed observer nodes
     const observersToStop = new Set()
     for (const removedNode of Array.from(mutationRecord.removedNodes)) {
       const comments = getAllComments(removedNode)
@@ -31,7 +32,7 @@ const docObserver = new MutationObserver((mutationList, mutationObserver) => {
         if (observer) observersToStop.add(observer)
       }
     }
-    // Collect all the added nodes and their observers
+    // Collect all added observer nodes
     const observersToStart = new Set()
     for (const addedNode of Array.from(mutationRecord.addedNodes)) {
       const comments = getAllComments(addedNode)
@@ -40,21 +41,24 @@ const docObserver = new MutationObserver((mutationList, mutationObserver) => {
         if (observer) observersToStart.add(observer)
       }
     }
-    // Stop before starting incase an observer is added and removed in the same mutation
+    // Stop before starting in case an observer is added and removed in the same mutation
     for (const observer of observersToStop) observer.stop()
     for (const observer of observersToStart) observer.start()
   }
 })
 docObserver.observe(document, { subtree: true, childList: true })
 
-// When an observer is attached to an element, a pair of comment nodes are
-// created to mark the "location" of the observer within the parent.
-// These comments are meant to act as proxies for the observer within the DOM.
-// When a comment is removed, so is its partner and the observer they represent
-// This defines the MutationObserver but it is only activated on the creation of each `el` element
-// This is unlike the docObserver which is activated on the creation of each element
-// This is so comment nodes are removed together even when their parent is out of the DOM
+// Observer management system using comment nodes as markers.
+// When an observer is attached to an element, a pair of comment nodes are created
+// to mark the observer's "location" within the parent. These comments act as
+// proxies for the observer within the DOM. When either comment is removed, both
+// are removed along with the observer they represent.
 const observerTrios = new WeakMap()
+
+// Clean up observer markers when comment nodes are removed.
+// This ensures proper cleanup of observer resources when DOM changes occur.
+// This MutationObserver is attached to each element created by el instead of the document
+// so that we can clean up observer markers even when the element is removed from the DOM
 const bookmarkObserver = new MutationObserver((mutationList, mutationObserver) => {
   for (const mutationRecord of mutationList) {
     for (const removedNode of Array.from(mutationRecord.removedNodes)) {
@@ -63,23 +67,39 @@ const bookmarkObserver = new MutationObserver((mutationList, mutationObserver) =
   }
 })
 
-// Main magic element wrapping function
-// First argument is the element to create or wrap
-// Subsequent arguments are children to attach
-// Returns the element with all the stuff attached
+// Main exported function. Creates a DOM element and appends children to it.
+//
+// @param {string|Element} descriptor - Tag/class string, CSS selector, or an existing Element.
+//   - If a string matches a tag or class, creates a new element with those classes.
+//   - If a string looks like a selector, finds and uses the existing element in the document.
+//   - If an Element is provided, uses it directly.
+//
+// @param {...(string|Element|Function|Observer|Promise|Iterable)} children - Child nodes to append.
+//   - Strings become text nodes.
+//   - Elements are appended directly.
+//   - Functions are called (with the parent as context) and their return value is appended.
+//   - Observers are called like Functions initially but subsequent triggers will replace the old content.
+//   - Promises will insert a placeholder and replace it when the promise resolves.
+//   - Iterables are looped over and each item is appended.
+//
+// @returns {Element} The resulting element with all children attached.
 export const el = (descriptor, ...children) => {
 
-  // Create the new element or wrap an existing one
-  // If its an existing element dont do anything
+  // Setup the root element
   let self
-  // Trivial case when given an element
+  // Trivial case: just use the given element
   if (descriptor instanceof Element) {
     self = descriptor
-  // If its a selector then find the thing
+  // If it looks like a selector try to find the existing element
   } else if (isQuerySelector(descriptor)) {
     self = document.querySelector(descriptor)
-  // If its a valid html tag, then make a new html tag and add classes
-  // Default to div otherwise
+    if (!self) {
+      throw new Error(`el descriptor selector "${descriptor}" not found`)
+    }
+  // Create new element from string descriptor
+  // If the first word is a valid html tag then use it, otherwise default to div
+  // The whole descriptor is added as classes
+  // So for example el('h1 foo bar') will create <h1 class="h1 foo bar"></h1>
   } else if (typeof descriptor === 'string') {
     const firstWord = descriptor.split(' ')[0]
     const tag = VALID_HTML_TAGS.includes(firstWord) ? firstWord : 'div'
@@ -89,60 +109,60 @@ export const el = (descriptor, ...children) => {
   } else {
     throw new TypeError('el descriptor expects a String or an Element')
   }
-  // Attach the MutationObserver to cleanly remove observer markers
+  
+  // Attach the MutationObserver to cleanly remove observer sets
   bookmarkObserver.observe(self, { childList: true })
 
-  // For the children
-  // If it's a string, append it as a text node
-  // If it's an Element or DocumentFragment, append it directly
-  // If it's an iterable (array), recursively append each child
-  // If it's a Promise, create a placeholder and resolve it asynchronously
-  // If it's a function, execute it in the element's context and append return values
-  // If it's an Observer, create bookend comments and handle it like a reactive function
-  // If it's none of the above, throw a TypeError
-  // TODO: Consider failure strategy. Fail fast or fail forward
-  // Currently we fail fast. The idea is to be simple syntactic sugar with minimal inner workings
-  // We could fail forward instead, dropping the failed children and continuing with the rest
-  // This would be more robust, but would be more complex to reason about
-  // For example with arrays, we fail fast so upon a malformed child we halt and don't append the rest of the array
-  // We could fail forward by catching errors and appending the rest of the array without the malformed child
-  function append (child, insertionPoint) {
-    // If the insertion point given is no longer attached
-    // Then abort the insertion
+  // Appends a child to the current element.
+  // Designed to be called recursively so a function could return a promise which resolves to an array of elements to get appended
+  // @param {String|Element|Function|Observer|Promise|Iterable} child - The child to append
+  // @param {Node} insertionPoint - Optional point to insert the child before. Defaults to the end of the element.
+  function append(child, insertionPoint) {
+
+    // Validate insertion point is still attached
     if (insertionPoint && insertionPoint.parentElement !== self) {
-      throw new Error('Append insertion point is no longer attached to the element')
+      throw new Error('append insertion point is no longer attached to the element')
     }
-    // Null case is just skipped with no error
+    
+    // Ignore null/undefined values
     if (typeof child === 'undefined' || child === null) {
       return
-    // Strings are just appended as text
-    } else if (typeof child === 'string') {
+    }
+    
+    // Attach strings as text nodes
+    if (typeof child === 'string') {
       const textNode = document.createTextNode(child)
       self.insertBefore(textNode, insertionPoint)
       return
-    // Existing elements are just appended
-    } else if (child instanceof Element || child instanceof DocumentFragment) {
-      self.insertBefore(shuck(child), insertionPoint)
+    }
+    
+    // Attach existing elements and document fragments
+    if (child instanceof Element || child instanceof DocumentFragment) {
+      self.insertBefore(shuck(child), insertionPoint) // TODO: Why shuck here?
       return
-    // Promises get an immediate placeholder before they resolve
-    // If the placeholder is removed before the promise resolves. Nothing happens
-    // With observers, this means only the latest promise will get handled
-    } else if (child instanceof Promise) {
+    }
+    
+    // Promises get a placeholder node which are replaced when they resolve
+    if (child instanceof Promise) {
       const promisePlaceholder = document.createComment('promisePlaceholder')
       self.insertBefore(promisePlaceholder, insertionPoint)
+      
       child.then(value => {
-        append(value, promisePlaceholder)
+        if (promisePlaceholder.parentElement === self) {
+          append(value, promisePlaceholder)
+        }
       }).finally(() => {
-        promisePlaceholder.remove()
+        if (promisePlaceholder.parentElement === self) {
+          promisePlaceholder.remove()
+        }
       })
       return
-    // Observers work similarly to functions
-    // but with comment "bookends" on to demark their position
-    // On initial commitment. Observers work like normal functions
-    // On subsequent triggers. Observers first clear everything
-    // between bookends
-    } else if (child instanceof Observer) {
-      // Start with the bookends marking the observer domain
+    }
+    
+    // Observers get their position marked with a pair of comments
+    // Every time the Observer is triggered the content between the comments is replaced
+    if (child instanceof Observer) {
+      // Create comment markers to define the observer's domain
       const observerStartNode = document.createComment('observerStart')
       const observerEndNode = document.createComment('observerEnd')
       self.insertBefore(observerStartNode, insertionPoint)
@@ -187,26 +207,28 @@ export const el = (descriptor, ...children) => {
       // If it is not yet in the document then stop observer from triggering further
       if (!document.contains(self)) child.stop()
       return
-    // Need this to come after cos observers are functions themselves
-    // we use call(self, self) to provide this for traditional functions
-    // and to provide (ctx) => {...} for arrow functions
-    } else if (typeof child === 'function') {
+    }
+    
+    // Execute functions and append the result
+    if (typeof child === 'function') {
       const result = child.call(self, self)
       append(result, insertionPoint)
       return
-    // Arrays are handled recursively
-    // Works for any sort of iterable
-    } else if (typeof child?.[Symbol.iterator] === 'function') {
+    }
+    
+    // Recursively handle iterables (arrays, etc.)
+    if (typeof child?.[Symbol.iterator] === 'function') {
       for (const grandChild of child) {
         append(grandChild, insertionPoint)
       }
       return
-    // Anything else isn't meant to be appended
-    } else {
-      throw new TypeError(`Invalid child type: ${typeof child}`)
     }
+    
+    // Anything else is an error
+    throw new TypeError(`Invalid child type: ${typeof child}`)
   }
-  // Arguments are treated same as an array`
+  
+  // Process all children
   append(children)
   
   // Return the raw DOM element
@@ -214,25 +236,36 @@ export const el = (descriptor, ...children) => {
   return self
 }
 
-// shorthand for attribute setting
-// el('foo', attribute('id', 'bar'))
-export function attr (attribute, value) {
+// Shorthand function to set attributes on elements.
+// Usage: el('div', attr('id', 'myDiv'))
+// 
+// @param {string} attribute - Attribute name
+// @param {string} value - Attribute value
+// @returns {Function} Function that sets the attribute when called
+export function attr(attribute, value) {
   return ($) => {
     $.setAttribute(attribute, value)
   }
 }
 
-// shorthand for binding
-// el('input', attribute('type', 'text'), bind(rx, 'foo'))
-export function bind (reactor, key) {
+// Shorthand function to bind input elements to reactor values.
+// Usage: el('input', attr('type', 'text'), bind(rx, 'foo'))
+// 
+// @param {Object} reactor - Reactor object containing the value
+// @param {string} key - Key in the reactor object
+// @returns {Function} Function that sets up two-way binding
+export function bind(reactor, key) {
   return ($) => {
     $.oninput = () => { reactor[key] = $.value }
     return new Observer(() => { $.value = reactor[key] })
   }
 }
 
-// Shorthand for making new observers
-// el('foo', ob(() => {}))
-export function ob (x) {
+// Shorthand function to create new observers.
+// Usage: el('div', ob(() => 'Hello World'))
+// 
+// @param {Function} x - Function to wrap in an observer
+// @returns {Observer} New observer instance
+export function ob(x) {
   return new Observer(x)
 }
