@@ -5,27 +5,26 @@ import { Observer, shuck } from 'reactorjs'
 // Used to know when to create a named tag and when to create a div by default
 const validHTMLTags = Object.freeze([
   'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio',
-  'b', 'bdi', 'base', 'basefont', 'bdo', 'big', 'blockquote', 'body', 'br', 'button',
+  'b', 'base', 'basefont', 'bdi', 'bdo', 'bgsound', 'big', 'blockquote', 'body', 'br', 'button',
   'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup', 'command',
-  'data', 'datagrid', 'datalist', 'dd', 'del', 'details', 'dfn', 'dir', 'div', 'dl', 'dt',
+  'data', 'datagrid', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog', 'dir', 'div', 'dl', 'dt',
   'em', 'embed', 'eventsource',
   'fieldset', 'figcaption', 'figure', 'font', 'footer', 'form', 'frame', 'frameset',
   'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header', 'hgroup', 'hr', 'html',
   'i', 'iframe', 'img', 'input', 'ins', 'isindex',
   'kbd', 'keygen',
-  'label', 'legend', 'li', 'link',
-  'mark', 'map', 'menu', 'meta', 'meter',
-  'nav',
-  'noframes', 'noscript',
+  'label', 'legend', 'li', 'link', 'listing',
+  'main', 'map', 'mark', 'menu', 'menuitem', 'meta', 'meter',
+  'nav', 'noframes', 'noscript',
   'object', 'ol', 'optgroup', 'option', 'output',
-  'p', 'param', 'pre', 'progress',
+  'p', 'param', 'plaintext', 'pre', 'progress',
   'q',
   'ruby', 'rp', 'rt',
   's', 'samp', 'script', 'section', 'select', 'small', 'source', 'span', 'strike', 'strong', 'style', 'sub', 'summary', 'sup',
   'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'tt',
   'u', 'ul',
   'var', 'video',
-  'wbr'
+  'wbr', 'xmp'
 ])
 
 // Maps normal Elements to their elInterface which enables the magic
