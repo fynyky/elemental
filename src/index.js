@@ -18,7 +18,7 @@ import { Observer, shuck } from 'reactorjs'
 
 // Manually updated list of valid HTML tags
 // Used to know when to create a named tag and when to create a div by default
-const validHTMLTags = Object.freeze([
+const VALID_HTML_TAGS = Object.freeze([
   'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio',
   'b', 'base', 'basefont', 'bdi', 'bdo', 'bgsound', 'big', 'blockquote', 'body', 'br', 'button',
   'canvas', 'caption', 'center', 'cite', 'code', 'col', 'colgroup', 'command',
@@ -156,6 +156,7 @@ function getNodesBetween (startNode, endNode) {
 // Problem is that a plain text string is a valid tag search
 // We check for the common cases of . # and [
 // Just skip starting with tag search
+// TODO consider if there are better ways to do this
 const isQuerySelector = (testString) => (
   typeof testString === 'string' && (
     testString.startsWith('.') ||
@@ -182,7 +183,7 @@ export const el = (descriptor, ...children) => {
   // Default to div otherwise
   } else if (typeof descriptor === 'string') {
     const firstWord = descriptor.split(' ')[0]
-    const tag = validHTMLTags.includes(firstWord) ? firstWord : 'div'
+    const tag = VALID_HTML_TAGS.includes(firstWord) ? firstWord : 'div'
     const newElement = document.createElement(tag)
     newElement.className = descriptor
     self = newElement
