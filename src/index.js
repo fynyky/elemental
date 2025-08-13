@@ -1,4 +1,19 @@
 /* eslint-env browser */
+
+// Provides a function `el` that enables a declarative syntax for DOM generation
+// in plain javascript. The first argument is what type of element to create.
+// The subsequent arguments are appended as child nodes. If the "child" argument
+// is a function, it is executed in the context of the parent node.
+
+// By nesting `el` calls we have a plain javascript alternative to HTML that
+// also allows for inline logic. This unifies the DOM and closure hierarchy,
+// creating a single consistent context for UI creation.
+
+// When an Observer from reactor.js is passed as a child argument, it's return
+// is automatically attached to the parent each time the observer triggers,
+// replacing the previous iterations if any. Attached Observers are also
+// automatically disabled when their parent element is removed from the DOM.
+
 import { Observer, shuck } from 'reactorjs'
 
 // Manually updated list of valid HTML tags
@@ -210,8 +225,11 @@ export const el = (descriptor, ...children) => {
     if (insertionPoint && insertionPoint.parentElement !== self) {
       throw new Error('Append insertion point is no longer attached to the element')
     }
+    // Null case is just skipped with no error
+    if (typeof child === 'undefined' || child === null) {
+      return
     // Strings are just appended as text
-    if (typeof child === 'string') {
+    } else if (typeof child === 'string') {
       const textNode = document.createTextNode(child)
       self.insertBefore(textNode, insertionPoint)
       return
@@ -226,7 +244,7 @@ export const el = (descriptor, ...children) => {
       const promisePlaceholder = document.createComment('promisePlaceholder')
       self.insertBefore(promisePlaceholder, insertionPoint)
       child.then(value => {
-        if (typeof value !== 'undefined') append(value, promisePlaceholder)
+        append(value, promisePlaceholder)
       }).finally(() => {
         promisePlaceholder.remove()
       })
@@ -273,7 +291,7 @@ export const el = (descriptor, ...children) => {
             oldChild.remove()
             observerTrios.get(oldChild)?.clear()
           }
-          if (typeof result !== 'undefined') append(result, observerEndNode)
+          append(result, observerEndNode)
         }
       }).start()
       // Kickoff the observer with a context of self
@@ -289,9 +307,7 @@ export const el = (descriptor, ...children) => {
     // and to provide (ctx) => {...} for arrow functions
     } else if (typeof child === 'function') {
       const result = child.call(self, self)
-      if (typeof result !== 'undefined') {
-        append(result, insertionPoint)
-      }
+      append(result, insertionPoint)
       return
     // Arrays are handled recursively
     // Works for any sort of iterable

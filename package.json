@@ -19,7 +19,7 @@
   },
   "scripts": {
     "lint": "standard --fix",
-    "build": "parcel build",
+    "build": "rm -rf dist/ && parcel build",
     "pretest": "npm run build",
     "test": "parcel serve test/test.html",
     "prepack": "npm run build"
