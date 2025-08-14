@@ -15,7 +15,7 @@
 // On subsequent updates, it clears the old content and inserts the new content.
 // This enables automatic UI updates when the underlying data changes.
 
-import { Observer, shuck, hide } from 'reactorjs'
+import { Observer, shuck } from 'reactorjs'
 import { getAllComments, getNodesBetween, isQuerySelector, VALID_HTML_TAGS } from './utils.js'
 
 // Automatically start/stop observers when elements are added/removed from the DOM. 
@@ -28,7 +28,7 @@ const docObserver = new MutationObserver((mutationList, mutationObserver) => {
     for (const removedNode of Array.from(mutationRecord.removedNodes)) {
       const comments = getAllComments(removedNode)
       for (const comment of comments) {
-        const observer = observerTrios.get(comment)?.observer
+        const observer = observerGroups.get(comment)?.observer
         if (observer) observersToStop.add(observer)
       }
     }
@@ -37,7 +37,7 @@ const docObserver = new MutationObserver((mutationList, mutationObserver) => {
     for (const addedNode of Array.from(mutationRecord.addedNodes)) {
       const comments = getAllComments(addedNode)
       for (const comment of comments) {
-        const observer = observerTrios.get(comment)?.observer
+        const observer = observerGroups.get(comment)?.observer
         if (observer) observersToStart.add(observer)
       }
     }
@@ -53,7 +53,7 @@ docObserver.observe(document, { subtree: true, childList: true })
 // to mark the observer's "location" within the parent. These comments act as
 // proxies for the observer within the DOM. When either comment is removed, both
 // are removed along with the observer they represent.
-const observerTrios = new WeakMap()
+const observerGroups = new WeakMap()
 
 // Clean up observer markers when comment nodes are removed.
 // This ensures proper cleanup of observer resources when DOM changes occur.
@@ -62,7 +62,7 @@ const observerTrios = new WeakMap()
 const bookmarkObserver = new MutationObserver((mutationList, mutationObserver) => {
   for (const mutationRecord of mutationList) {
     for (const removedNode of Array.from(mutationRecord.removedNodes)) {
-      observerTrios.get(removedNode)?.clear()
+      observerGroups.get(removedNode)?.clear()
     }
   }
 })
@@ -163,26 +163,28 @@ export const el = (descriptor, ...children) => {
     // Every time the Observer is triggered the content between the comments is replaced
     if (child instanceof Observer) {
       // Create comment markers to define the observer's domain
-      const observerStartNode = document.createComment('observerStart')
-      const observerEndNode = document.createComment('observerEnd')
       // Observe the observer to append the results
       // Check if the bookmarks are still attached before acting
       // Clear everything in between the bookmarks (including other observers)
       // Then insert new content between them
+      const observerStartNode = document.createComment('observerStart')
+      const observerEndNode = document.createComment('observerEnd')
       const metaObserver = new Observer(() => {
-        const result = child.value
+        // Kickoff the observer child with a context of self
+        // This needs to be done in the metaObserver to avoid infinite loops
+        // If called outside of here, the child could form a dependency on an external observer
+        const result = child.call(self, self)
         if (observerStartNode.parentNode === self && observerEndNode.parentNode === self) {
           const oldChildren = getNodesBetween(observerStartNode, observerEndNode)
           for (const oldChild of oldChildren) {
             oldChild.remove()
-            observerTrios.get(oldChild)?.clear()
           }
           append(result, observerEndNode)
         }
       })
       // Keep a mapping of the bookends to the observer
       // Lets the observer be cleaned up when the owning comment is removed
-      const observerTrio = {
+      const observerGroup = {
         start: observerStartNode,
         end: observerEndNode,
         observer: child,
@@ -194,15 +196,9 @@ export const el = (descriptor, ...children) => {
           this.metaObserver.stop()
         }
       }
-      observerTrios.set(observerStartNode, observerTrio)
-      observerTrios.set(observerEndNode, observerTrio)
-      observerTrios.set(child, observerTrio)
+      observerGroups.set(observerStartNode, observerGroup)
+      observerGroups.set(observerEndNode, observerGroup)
 
-      // Kickoff the observer with a context of self
-      // Because child is an observer doing a call with set outer observers as a dependency
-      // Since we're not using the return value of child we can hide it to avoid that
-      // This avoids the infinite loop of the outer observer keeping triggerin the inner
-      hide(() => child.call(self, self)) 
       self.insertBefore(observerStartNode, insertionPoint)
       self.insertBefore(observerEndNode, insertionPoint)
       metaObserver.start()
