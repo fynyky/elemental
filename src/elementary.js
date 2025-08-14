@@ -15,7 +15,7 @@
 // On subsequent updates, it clears the old content and inserts the new content.
 // This enables automatic UI updates when the underlying data changes.
 
-import { Observer, shuck } from 'reactorjs'
+import { Observer, shuck, hide } from 'reactorjs'
 import { getAllComments, getNodesBetween, isQuerySelector, VALID_HTML_TAGS } from './utils.js'
 
 // Automatically start/stop observers when elements are added/removed from the DOM. 
@@ -165,30 +165,11 @@ export const el = (descriptor, ...children) => {
       // Create comment markers to define the observer's domain
       const observerStartNode = document.createComment('observerStart')
       const observerEndNode = document.createComment('observerEnd')
-      self.insertBefore(observerStartNode, insertionPoint)
-      self.insertBefore(observerEndNode, insertionPoint)
-      // Keep a mapping of the bookends to the observer
-      // Lets the observer be cleaned up when the owning comment is removed
-      const observerTrio = {
-        start: observerStartNode,
-        end: observerEndNode,
-        observer: child,
-        clear: function () {
-          this.start.remove()
-          this.end.remove()
-          this.observer.stop()
-          // TODO: consider whether I should map and remove the meta observer instead
-        }
-      }
-      observerTrios.set(observerStartNode, observerTrio)
-      observerTrios.set(observerEndNode, observerTrio)
-      observerTrios.set(child, observerTrio)
-
       // Observe the observer to append the results
       // Check if the bookmarks are still attached before acting
       // Clear everything in between the bookmarks (including other observers)
       // Then insert new content between them
-      new Observer(() => {
+      const metaObserver = new Observer(() => {
         const result = child.value
         if (observerStartNode.parentNode === self && observerEndNode.parentNode === self) {
           const oldChildren = getNodesBetween(observerStartNode, observerEndNode)
@@ -198,12 +179,33 @@ export const el = (descriptor, ...children) => {
           }
           append(result, observerEndNode)
         }
-      }).start()
+      })
+      // Keep a mapping of the bookends to the observer
+      // Lets the observer be cleaned up when the owning comment is removed
+      const observerTrio = {
+        start: observerStartNode,
+        end: observerEndNode,
+        observer: child,
+        metaObserver: metaObserver,
+        clear: function () {
+          this.start.remove()
+          this.end.remove()
+          this.observer.stop()
+          this.metaObserver.stop()
+        }
+      }
+      observerTrios.set(observerStartNode, observerTrio)
+      observerTrios.set(observerEndNode, observerTrio)
+      observerTrios.set(child, observerTrio)
+
       // Kickoff the observer with a context of self
-      child.setThisContext(self)
-      child.setArgsContext(self)
-      child.stop()
-      child.start()
+      // Because child is an observer doing a call with set outer observers as a dependency
+      // Since we're not using the return value of child we can hide it to avoid that
+      // This avoids the infinite loop of the outer observer keeping triggerin the inner
+      hide(() => child.call(self, self)) 
+      self.insertBefore(observerStartNode, insertionPoint)
+      self.insertBefore(observerEndNode, insertionPoint)
+      metaObserver.start()
       // If it is not yet in the document then stop observer from triggering further
       if (!document.contains(self)) child.stop()
       return
