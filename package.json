@@ -1,22 +1,12 @@
 {
-  "name": "elementary.js",
+  "name": "elemental",
   "version": "0.0.1",
   "description": "Simple reactive ui building without frameworks",
   "type": "module",
-  "source": "src/index.js",
   "main": "dist/main.js",
   "browser": "dist/browser.js",
-  "targets": {
-    "browser": {
-      "context": "browser",
-      "includeNodeModules": true,
-      "optimize": true
-    }
-  },
-  "devDependencies": {
-    "parcel": "^2.8.1",
-    "standard": "^17.0.0"
-  },
+  "source": "src/index.js",
+  "files": [ "dist/**/*" ],
   "scripts": {
     "lint": "standard --fix",
     "build": "rm -rf dist/ && parcel build",
@@ -24,17 +14,28 @@
     "test": "parcel serve test/test.html",
     "prepack": "npm run build"
   },
+  "dependencies": {
+    "reactorjs": "^3.0.0"
+  },
+  "devDependencies": {
+    "parcel": "^2.8.1",
+    "standard": "^17.0.0"
+  },
+  "targets": {
+    "browser": {
+      "context": "browser",
+      "includeNodeModules": true,
+      "optimize": true
+    }
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fynyky/elementary.js.git"
+    "url": "git+https://github.com/fynyky/elemental.git"
   },
-  "author": "Li Hongyi",
-  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/fynyky/elementary.js/issues"
+    "url": "https://github.com/fynyky/elemental/issues"
   },
-  "homepage": "https://github.com/fynyky/elementary.js#readme",
-  "dependencies": {
-    "reactorjs": "^2.0.0"
-  }
+  "homepage": "https://github.com/fynyky/elemental#readme",
+  "author": "Li Hongyi",
+  "license": "MIT"
 }
