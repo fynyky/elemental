@@ -15,7 +15,7 @@
 // On subsequent updates, it clears the old content and inserts the new content.
 // This enables automatic UI updates when the underlying data changes.
 
-import { Observer, shuck } from 'reactorjs'
+import { Observer, shuck, hide } from 'reactorjs'
 import { getAllComments, getNodesBetween, isQuerySelector, VALID_HTML_TAGS } from './utils.js'
 
 // Automatically start/stop observers when elements are added/removed from the DOM.
@@ -171,13 +171,12 @@ export const el = (descriptor, ...children) => {
         // Kickoff the observer child with a context of self
         // This needs to be done in the metaObserver to avoid infinite loops
         // If called outside of here, the child could form a dependency on an external observer
-        const result = child.call(self, self)
         if (observerStartNode.parentNode === self && observerEndNode.parentNode === self) {
           const oldChildren = getNodesBetween(observerStartNode, observerEndNode)
           for (const oldChild of oldChildren) {
             oldChild.remove()
           }
-          append(result, observerEndNode)
+          append(child.value, observerEndNode)
         }
       })
       // Keep a mapping of the bookends to the observer
@@ -199,6 +198,7 @@ export const el = (descriptor, ...children) => {
 
       self.insertBefore(observerStartNode, insertionPoint)
       self.insertBefore(observerEndNode, insertionPoint)
+      hide(() => child.call(self, self))
       metaObserver.start()
       // If it is not yet in the document then stop observer from triggering further
       if (!document.contains(self)) child.stop()
