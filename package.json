@@ -1,5 +1,5 @@
 {
-  "name": "elemental",
+  "name": "@fynyky/elemental",
   "version": "0.0.1",
   "description": "Simple reactive ui building without frameworks",
   "type": "module",
