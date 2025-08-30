@@ -10,9 +10,9 @@
   "scripts": {
     "lint": "standard --fix",
     "build": "rm -rf dist/ && parcel build",
-    "pretest": "npm run build",
+    "pretest": "npm run lint && npm run build",
     "test": "parcel serve test/test.html",
-    "prepack": "npm run build"
+    "prepack": "npm run lint && npm run build"
   },
   "dependencies": {
     "reactorjs": "^3.0.0"

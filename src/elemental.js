@@ -84,7 +84,6 @@ const bookmarkObserver = new MutationObserver((mutationList, mutationObserver) =
 //
 // @returns {Element} The resulting element with all children attached.
 export const el = (descriptor, ...children) => {
-
   // Setup the root element
   let self
   // Trivial case: just use the given element
@@ -109,7 +108,7 @@ export const el = (descriptor, ...children) => {
   } else {
     throw new TypeError('el descriptor expects a String or an Element')
   }
-  
+
   // Attach the MutationObserver to cleanly remove observer sets
   bookmarkObserver.observe(self, { childList: true })
 
@@ -117,36 +116,35 @@ export const el = (descriptor, ...children) => {
   // Designed to be called recursively so a function could return a promise which resolves to an array of elements to get appended
   // @param {String|Element|Function|Observer|Promise|Iterable} child - The child to append
   // @param {Node} insertionPoint - Optional point to insert the child before. Defaults to the end of the element.
-  function append(child, insertionPoint) {
-
+  function append (child, insertionPoint) {
     // Validate insertion point is still attached
     if (insertionPoint && insertionPoint.parentElement !== self) {
       throw new Error('append insertion point is no longer attached to the element')
     }
-    
+
     // Ignore null/undefined values
     if (typeof child === 'undefined' || child === null) {
       return
     }
-    
+
     // Attach strings as text nodes
     if (typeof child === 'string') {
       const textNode = document.createTextNode(child)
       self.insertBefore(textNode, insertionPoint)
       return
     }
-    
+
     // Attach existing elements and document fragments
     if (child instanceof Element || child instanceof DocumentFragment) {
       self.insertBefore(shuck(child), insertionPoint) // shuck removes any Reactor wrappers
       return
     }
-    
+
     // Promises get a placeholder node which are replaced when they resolve
     if (child instanceof Promise) {
       const promisePlaceholder = document.createComment('promisePlaceholder')
       self.insertBefore(promisePlaceholder, insertionPoint)
-      
+
       child.then(value => {
         if (promisePlaceholder.parentElement === self) {
           append(value, promisePlaceholder)
@@ -158,7 +156,7 @@ export const el = (descriptor, ...children) => {
       })
       return
     }
-    
+
     // Observers get their position marked with a pair of comments
     // Every time the Observer is triggered the content between the comments is replaced
     if (child instanceof Observer) {
@@ -188,7 +186,7 @@ export const el = (descriptor, ...children) => {
         start: observerStartNode,
         end: observerEndNode,
         observer: child,
-        metaObserver: metaObserver,
+        metaObserver,
         clear: function () {
           this.start.remove()
           this.end.remove()
@@ -206,14 +204,14 @@ export const el = (descriptor, ...children) => {
       if (!document.contains(self)) child.stop()
       return
     }
-    
+
     // Execute functions and append the result
     if (typeof child === 'function') {
       const result = child.call(self, self)
       append(result, insertionPoint)
       return
     }
-    
+
     // Recursively handle iterables (arrays, etc.)
     if (typeof child?.[Symbol.iterator] === 'function') {
       for (const grandChild of child) {
@@ -221,14 +219,14 @@ export const el = (descriptor, ...children) => {
       }
       return
     }
-    
+
     // Anything else is an error
     throw new TypeError(`Invalid child type: ${typeof child}`)
   }
-  
+
   // Process all children
   append(children)
-  
+
   // Return the raw DOM element
   // Magic wrapping held in a pocket dimension outside of time and space
   return self
@@ -240,7 +238,7 @@ export const el = (descriptor, ...children) => {
 // @param {string} attribute - Attribute name
 // @param {string} value - Attribute value
 // @returns {Function} Function that sets the attribute when called
-export function attr(attribute, value) {
+export function attr (attribute, value) {
   return ($) => {
     $.setAttribute(attribute, value)
   }
@@ -252,7 +250,7 @@ export function attr(attribute, value) {
 // @param {Object} reactor - Reactor object containing the value
 // @param {string} key - Key in the reactor object
 // @returns {Function} Function that sets up two-way binding
-export function bind(reactor, key) {
+export function bind (reactor, key) {
   return ($) => {
     $.oninput = () => { reactor[key] = $.value }
     return new Observer(() => { $.value = reactor[key] })
@@ -264,6 +262,6 @@ export function bind(reactor, key) {
 //
 // @param {Function} x - Function to wrap in an observer
 // @returns {Observer} New observer instance
-export function ob(x) {
+export function ob (x) {
   return new Observer(x)
 }

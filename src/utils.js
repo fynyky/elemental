@@ -1,3 +1,5 @@
+/* eslint-env browser */
+
 // Manually compiled list of valid HTML tags
 export const VALID_HTML_TAGS = Object.freeze([
   'a', 'abbr', 'acronym', 'address', 'applet', 'area', 'article', 'aside', 'audio',
@@ -75,18 +77,18 @@ export function isQuerySelector (testString) {
 
   // Common CSS selector patterns
   const selectorPatterns = [
-    /^[.#[]/,           // Starts with . # [
-    /^[a-zA-Z-]+\[/,    // Attribute selectors like div[attr]
-    /^[a-zA-Z-]+:/,     // Pseudo-selectors like div:hover
-    /^[a-zA-Z-]+::/,    // Pseudo-elements like div::before
+    /^[.#[]/, // Starts with . # [
+    /^[a-zA-Z-]+\[/, // Attribute selectors like div[attr]
+    /^[a-zA-Z-]+:/, // Pseudo-selectors like div:hover
+    /^[a-zA-Z-]+::/, // Pseudo-elements like div::before
     /^[a-zA-Z-]+\.[a-zA-Z-]/, // Compound selectors like div.class
-    /^[a-zA-Z-]+#[a-zA-Z-]/,  // Compound selectors like div#id
-    /^[>+~]/,           // Starts with > + ~
-    /^[a-zA-Z-]+\s/,    // Tag followed by space (descendant selector)
-    /^[a-zA-Z-]+>/,     // Tag followed by > (child selector)
-    /^[a-zA-Z-]+\+/,    // Tag followed by + (adjacent sibling)
-    /^[a-zA-Z-]+~/,     // Tag followed by ~ (general sibling)
+    /^[a-zA-Z-]+#[a-zA-Z-]/, // Compound selectors like div#id
+    /^[>+~]/, // Starts with > + ~
+    /^[a-zA-Z-]+\s/, // Tag followed by space (descendant selector)
+    /^[a-zA-Z-]+>/, // Tag followed by > (child selector)
+    /^[a-zA-Z-]+\+/, // Tag followed by + (adjacent sibling)
+    /^[a-zA-Z-]+~/ // Tag followed by ~ (general sibling)
   ]
-  
+
   return selectorPatterns.some(pattern => pattern.test(testString))
 }
