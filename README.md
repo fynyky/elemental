@@ -50,8 +50,6 @@ Elemental is meant to be unobtrusive and unopinionated.
 - There is no need to manually declare listeners or bindings. Elemental automatically keeps track of all that for you.
 - Use it for the whole front-end or just a few components. Elements created by Elemental are just normal DOM elements, and any variable can be easily replaced with a reactive one without changing the rest of your codebase.
 
-You try it yourself in a JSFiddle [here](https://jsfiddle.net/8wrqLy9h/)
-
 Elemental is a reactive UI layer built on top of [Reactor.js](https://github.com/fynyky/reactor.js)
 
 Installation
