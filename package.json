@@ -6,12 +6,7 @@
   "main": "dist/main.js",
   "browser": "dist/browser.js",
   "source": "src/index.js",
-  "files": [
-    "dist/browser.js",
-    "dist/browser.js.map",
-    "dist/main.js",
-    "dist/main.js.map"
-  ],
+  "files": [ "dist/**/*" ],
   "scripts": {
     "lint": "standard --fix",
     "build": "rm -rf dist/ && parcel build",
