@@ -1,12 +1,12 @@
-Elementary
+Elemental
 ==========
 
-Elementary is a simple reactive front-end library. It provides 
+Elemental is a simple reactive front-end library. It provides 
 - `Reactor` objects that store reactive variables
 - `Observer` functions that automatically track the reactive variables that they use and retrigger if any of these variables are updated. The function `ob` is shorthand for `new Observer`
 - A function `el` that allows declarative element creation in javascript
 
-Here's a quick example of what Elementary does:
+Here's a quick example of what Elemental does:
 ```javascript
 import { Reactor, ob, el } from '@fynyky/elementary'
 

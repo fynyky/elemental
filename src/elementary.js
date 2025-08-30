@@ -1,16 +1,16 @@
 /* eslint-env browser */
 
-// Elementary.js - Declarative DOM Generation Library
-// 
+// Elemental
+//
 // Provides a function `el` that enables a declarative syntax for DOM generation
-// in plain JavaScript. The first argument specifies the element type to create,
-// and subsequent arguments are appended as child nodes.
-// 
+// in plain JavaScript. The first argument specifies the element to create,
+// and subsequent arguments are appended as children.
+//
 // When a child argument is a function, it's executed in the context of the parent node.
-// By nesting `el` calls, we have a plain JavaScript alternative to HTML that also
-// allows for inline logic, unifying the DOM and closure hierarchy.
-// 
-// Reactivity is handled using reactor.js Observers.
+// By nesting `el` calls, we have a plain JavaScript alternative to HTML that allows for inline logic,
+// unifying the DOM and closure hierarchy.
+//
+// By using Reactor.js, we can also have reactive components.
 // When an Observer is passed as a child, it initially renders its content like a normal function.
 // On subsequent updates, it clears the old content and inserts the new content.
 // This enables automatic UI updates when the underlying data changes.
@@ -18,7 +18,7 @@
 import { Observer, shuck } from 'reactorjs'
 import { getAllComments, getNodesBetween, isQuerySelector, VALID_HTML_TAGS } from './utils.js'
 
-// Automatically start/stop observers when elements are added/removed from the DOM. 
+// Automatically start/stop observers when elements are added/removed from the DOM.
 // This prevents "orphan" observers from staying alive and updating nodes that are no longer relevant.
 // Note: MutationObserver is native browser class and unrelated to reactor.js Observers
 const docObserver = new MutationObserver((mutationList, mutationObserver) => {
@@ -138,7 +138,7 @@ export const el = (descriptor, ...children) => {
     
     // Attach existing elements and document fragments
     if (child instanceof Element || child instanceof DocumentFragment) {
-      self.insertBefore(shuck(child), insertionPoint) // TODO: Why shuck here?
+      self.insertBefore(shuck(child), insertionPoint) // shuck removes any Reactor wrappers
       return
     }
     
@@ -236,7 +236,7 @@ export const el = (descriptor, ...children) => {
 
 // Shorthand function to set attributes on elements.
 // Usage: el('div', attr('id', 'myDiv'))
-// 
+//
 // @param {string} attribute - Attribute name
 // @param {string} value - Attribute value
 // @returns {Function} Function that sets the attribute when called
@@ -248,7 +248,7 @@ export function attr(attribute, value) {
 
 // Shorthand function to bind input elements to reactor values.
 // Usage: el('input', attr('type', 'text'), bind(rx, 'foo'))
-// 
+//
 // @param {Object} reactor - Reactor object containing the value
 // @param {string} key - Key in the reactor object
 // @returns {Function} Function that sets up two-way binding
@@ -261,7 +261,7 @@ export function bind(reactor, key) {
 
 // Shorthand function to create new observers.
 // Usage: el('div', ob(() => 'Hello World'))
-// 
+//
 // @param {Function} x - Function to wrap in an observer
 // @returns {Observer} New observer instance
 export function ob(x) {

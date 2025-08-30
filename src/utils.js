@@ -62,15 +62,24 @@ export function getNodesBetween (startNode, endNode) {
   return result
 }
 
-// Simple check for a query selector over creating a tag
-// Problem is that a plain text string is a valid tag search
-// We check for the common cases of . # and [
-// Just skip starting with tag search
-// TODO consider if there are better ways to do this
+// Check for the css query selector which is not a valid html tag
 export function isQuerySelector (testString) {
-  return (typeof testString === 'string' && (
-    testString.startsWith('.') ||
-    testString.startsWith('#') ||
-    testString.startsWith('[')
-  ))
+  if (typeof testString !== 'string' || testString.length === 0) {
+    return false
+  }
+  // Common CSS selector patterns
+  const selectorPatterns = [
+    /^[.#[]/,           // Starts with . # [
+    /^[a-zA-Z-]+\[/,    // Attribute selectors like div[attr]
+    /^[a-zA-Z-]+:/,     // Pseudo-selectors like div:hover
+    /^[a-zA-Z-]+::/,    // Pseudo-elements like div::before
+    /^[a-zA-Z-]+\.[a-zA-Z-]/, // Compound selectors like div.class
+    /^[a-zA-Z-]+#[a-zA-Z-]/,  // Compound selectors like div#id
+    /^[>+~]/,           // Starts with > + ~
+    /^[a-zA-Z-]+\s/,    // Tag followed by space (descendant selector)
+    /^[a-zA-Z-]+>/,     // Tag followed by > (child selector)
+    /^[a-zA-Z-]+\+/,    // Tag followed by + (adjacent sibling)
+    /^[a-zA-Z-]+~/,     // Tag followed by ~ (general sibling)
+  ]
+  return selectorPatterns.some(pattern => pattern.test(testString))
 }
