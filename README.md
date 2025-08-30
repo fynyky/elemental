@@ -1,21 +1,16 @@
 Elemental
 ==========
 
-Elemental is a simple reactive front-end library. It provides 
-- `Reactor` objects that store reactive variables
-- `Observer` functions that automatically track the reactive variables that they use and retrigger if any of these variables are updated. The function `ob` is shorthand for `new Observer`
-- A function `el` that allows declarative element creation in javascript
+Elemental is a simple front-end library that lets you build reactive UIs declaratively using plain JavaScript. No special syntax to learn or complex frameworks to build around, just normal nested functions.
 
 Here's a quick example of what Elemental does:
 ```javascript
 import { Reactor, ob, el } from '@fynyky/elemental'
 
-const rx = new Reactor({
-  name: 'Anakin' 
-})
+const rx = new Reactor({ name: 'Anakin' })
 
 el(document.body,
-  el('main',   
+  el('main',
     el('h1', 'Hello World!'),
     el('h2', (x) => { x.id ='foo' }, () => 'returned text'),
     el('defaults to div', ['this', 'is', 'an', 'array']),
@@ -34,20 +29,20 @@ rx.name = 'Darth'
 // Changes to
 //   <p class="p more class names">My name is Darth</p>
 ```
-- `Reactor` objects work like normal objects that you can set and get properties on
-- `Observer` functions work like normal functions that you can define and call
-- When an `Observer` reads a `Reactor` it registers itself as a dependent
-- When a `Reactor` is updated it automatically retriggers the dependent `Observer` functions
-- `el` creates a DOM element
-  - The first argument is the type of element it creates
+- `el` is a function that creates elements then attaches children to them
+  - The first argument is the type of element to create (or an existing element to reuse)
   - Subsequent arguments are appended as children
-  - Function children are run with the context of the parent element
-  - Function return values are appended as children
-  - `Observer` functions automatically replace their child nodes when retriggered
+  - Functions are run given their parent, and their return values are appended
+  - `Observer` functions do the same, but their children get replaced when updated
+- `ob` is shorthand for `new Observer`
+- An `Observer` is a function that automatically tracks reactive variables that it uses, and retriggers if they get updated.
+- A `Reactor` is an object that stores reactive variables
+- When a `Reactor` is updated it automatically retriggers the dependent `Observer` functions
 
-Elemental is meant to be unobtrusive and unopinionated. 
-- No special syntax to learn. Everything is just plain javascript
-- There is no need to manually declare listeners or bindings. Elemental automatically keeps track of all that for you.
+Elemental is designed to be unobtrusive and unopinionated. 
+- No special syntax to learn. Everything is just plain JavaScript
+- No need to manually declare listeners. Elemental automatically keeps track of all that
+- No complex framework internals to debug. Its just appending elements and rerunning observers when needed
 - Use it for the whole front-end or just a few components. Elements created by Elemental are just normal DOM elements, and any variable can be easily replaced with a reactive one without changing the rest of your codebase.
 
 Elemental is a reactive UI layer built on top of [Reactor.js](https://github.com/fynyky/reactor.js)
