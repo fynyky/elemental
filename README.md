@@ -8,7 +8,7 @@ Elemental is a simple reactive front-end library. It provides
 
 Here's a quick example of what Elemental does:
 ```javascript
-import { Reactor, ob, el } from '@fynyky/elementary'
+import { Reactor, ob, el } from '@fynyky/elemental'
 
 const rx = new Reactor({
   name: 'Anakin' 
@@ -45,21 +45,21 @@ rx.name = 'Darth'
   - Function return values are appended as children
   - `Observer` functions automatically replace their child nodes when retriggered
 
-Elementary is meant to be unobtrusive and unopinionated. 
+Elemental is meant to be unobtrusive and unopinionated. 
 - No special syntax to learn. Everything is just plain javascript
-- There is no need to manually declare listeners or bindings. Elementary automatically keeps track of all that for you. 
-- Use it for the whole front-end or just a few components. Elements created by Elementary are just normal DOM elements, and any variable can be easily replaced with a reactive one without changing the rest of your codebase.
+- There is no need to manually declare listeners or bindings. Elemental automatically keeps track of all that for you.
+- Use it for the whole front-end or just a few components. Elements created by Elemental are just normal DOM elements, and any variable can be easily replaced with a reactive one without changing the rest of your codebase.
 
 You try it yourself in a JSFiddle [here](https://jsfiddle.net/8wrqLy9h/)
 
-Elementary is a reactive UI layer built on top of [Reactor.js](https://github.com/fynyky/reactor.js)
+Elemental is a reactive UI layer built on top of [Reactor.js](https://github.com/fynyky/reactor.js)
 
 Installation
 ------------
 
-Elementary is [available on npm](https://npmjs.org/package/@fynyky/elementary). Install it by running:
+Elemental is [available on npm](https://npmjs.org/package/@fynyky/elemental). Install it by running:
 ```
-$ npm install @fynyky/elementary
+$ npm install @fynyky/elemental
 ```
 
 Import it using:
@@ -74,12 +74,12 @@ import  {
   hide,
   batch,
   shuck
-}  from '@fynyky/elementary'
+}  from '@fynyky/elemental'
 ```
 
 It is also available directly from [unpkg](unpkg.com). You can import it in javascript using
 ```javascript
-import { el, attr, bind, ob, Reactor, Observer, hide, batch, shuck } from 'https://unpkg.com/@fynyky/elementary'
+import { el, attr, bind, ob, Reactor, Observer, hide, batch, shuck } from 'https://unpkg.com/@fynyky/elemental'
 ```
 
 
@@ -264,7 +264,7 @@ somePromise.resolve('resolved!')
 ```
 --------------------------------------------------------------------------------
 
-`Observer` functions from Elementary are handled very similarly to functions. They are executed in the context of the parent. However they also leave a set of comments bookmarking the children they produce.
+`Observer` functions from Elemental are handled very similarly to functions. They are executed in the context of the parent. However they also leave a set of comments bookmarking the children they produce.
 
 ```javascript
 const rx = new Reactor({ name: 'foo' })
@@ -667,7 +667,7 @@ Summary
 import { 
   el, attr, bind, ob,
   Reactor, Observer, hide, batch, shuck 
-} from '@fynyky/elementary'
+} from '@fynyky/elemental'
 
 // el(description, children...)
 el('h1') // Creates a h1 element with a class "h1"
