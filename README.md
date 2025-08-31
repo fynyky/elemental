@@ -224,7 +224,7 @@ el('h1', attr('id', 'foo'))
 <h1 class="h1" id="foo"></h1>
 ```
 
-Similarly the `bind(reactor, value)` function is provided as a shorthand for
+Similarly the `bind(reactor, key)` function is provided as a shorthand for
 
 ```javascript
 $ => {
