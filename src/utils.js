@@ -68,27 +68,11 @@ export function getNodesBetween (startNode, endNode) {
   return result
 }
 
-// Helper function to check if a string is a valid css query selector but not a single word html tag
-// Need to distinguish because html tags are also valid css selectors
-export function isQuerySelector (testString) {
+// Helper function to check if a string should be used as a css query selector
+export function isTreatedAsQuerySelector (testString) {
   if (typeof testString !== 'string' || testString.length === 0) {
     return false
   }
-
-  // Common CSS selector patterns
-  const selectorPatterns = [
-    /^[.#[]/, // Starts with . # [
-    /^[a-zA-Z-]+\[/, // Attribute selectors like div[attr]
-    /^[a-zA-Z-]+:/, // Pseudo-selectors like div:hover
-    /^[a-zA-Z-]+::/, // Pseudo-elements like div::before
-    /^[a-zA-Z-]+\.[a-zA-Z-]/, // Compound selectors like div.class
-    /^[a-zA-Z-]+#[a-zA-Z-]/, // Compound selectors like div#id
-    /^[>+~]/, // Starts with > + ~
-    /^[a-zA-Z-]+\s/, // Tag followed by space (descendant selector)
-    /^[a-zA-Z-]+>/, // Tag followed by > (child selector)
-    /^[a-zA-Z-]+\+/, // Tag followed by + (adjacent sibling)
-    /^[a-zA-Z-]+~/ // Tag followed by ~ (general sibling)
-  ]
-
-  return selectorPatterns.some(pattern => pattern.test(testString))
+  // Simple test: starts with # or .
+  return /^[.#]/.test(testString)
 }

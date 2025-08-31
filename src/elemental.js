@@ -16,7 +16,7 @@
 // This enables automatic UI updates when the underlying data changes.
 
 import { Observer, shuck, hide } from 'reactorjs'
-import { getAllComments, getNodesBetween, isQuerySelector, VALID_HTML_TAGS } from './utils.js'
+import { getAllComments, getNodesBetween, isTreatedAsQuerySelector, VALID_HTML_TAGS } from './utils.js'
 
 // Automatically start/stop observers when elements are added/removed from the DOM.
 // This prevents "orphan" observers from staying alive and updating nodes that are no longer relevant.
@@ -90,7 +90,7 @@ export const el = (descriptor, ...children) => {
   if (descriptor instanceof Element) {
     self = descriptor
   // If it looks like a selector try to find the existing element
-  } else if (isQuerySelector(descriptor)) {
+  } else if (isTreatedAsQuerySelector(descriptor)) {
     self = document.querySelector(descriptor)
     if (!self) {
       throw new Error(`el descriptor selector "${descriptor}" not found`)
