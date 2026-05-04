@@ -1,6 +1,6 @@
 {
   "name": "Dev",
-  "image": "mcr.microsoft.com/devcontainers/node:22",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
   "forwardPorts": [3000],
   "portsAttributes": {
     "3000": {
