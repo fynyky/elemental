@@ -3,6 +3,10 @@
 import { assert } from 'chai'
 import { el, attr, bind, ob, Reactor } from '../src/index.js'
 
+afterEach(() => {
+  document.body.innerHTML = ''
+})
+
 describe('Element creation', () => {
   it('can create a basic div', () => {
     const result = el('foo')
