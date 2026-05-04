@@ -12,9 +12,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint",
-        "GitHub.copilot"
+        "anthropic.claude-code"
       ]
     }
   }
