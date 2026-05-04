@@ -1,6 +1,6 @@
 /* eslint-env mocha */
-/* global assert */
 
+import { assert } from 'chai'
 import { el, attr, bind, ob, Reactor } from '../src/index.js'
 
 describe('Element creation', () => {

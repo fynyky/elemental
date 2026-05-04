@@ -6,19 +6,25 @@
   "main": "dist/main.js",
   "browser": "dist/browser.js",
   "source": "src/index.js",
-  "files": [ "dist/**/*" ],
+  "files": [
+    "dist/**/*"
+  ],
   "scripts": {
     "lint": "standard --fix",
     "build": "rm -rf dist/ && parcel build",
-    "pretest": "npm run lint && npm run build",
-    "test": "parcel serve test/test.html",
+    "pretest": "npm run lint",
+    "test": "web-test-runner",
     "prepack": "npm run lint && npm run build"
   },
   "dependencies": {
     "reactorjs": "^3.0.0"
   },
   "devDependencies": {
+    "@web/test-runner": "^0.20.2",
+    "@web/test-runner-playwright": "^0.11.1",
+    "chai": "^6.2.2",
     "parcel": "^2.8.1",
+    "playwright": "1.59.1",
     "standard": "^17.0.0"
   },
   "targets": {
