@@ -434,20 +434,23 @@ describe('Shorthands', () => {
     }, 10)
   })
 
-  it.skip('does 2 way binding', () => {
-    // Need to automate this with puppeteer
+  it('does 2 way binding', (done) => {
     const rx = new Reactor()
     rx.foo = 'bar'
-    const display = el('h1', ob(() => rx.foo))
     const input = el('input',
       attr('type', 'text'),
       bind(rx, 'foo')
     )
-    const input2 = el('input',
-      attr('type', 'text'),
-      bind(rx, 'foo')
-    )
-    el(document.body, display, input, input2)
+    document.body.appendChild(input)
+    setTimeout(() => {
+      assert.equal(input.value, 'bar')
+      rx.foo = 'baz'
+      assert.equal(input.value, 'baz')
+      input.value = 'qux'
+      input.dispatchEvent(new Event('input'))
+      assert.equal(rx.foo, 'qux')
+      done()
+    }, 10)
   })
 })
 
