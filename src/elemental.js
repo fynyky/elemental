@@ -252,7 +252,7 @@ export function attr (attribute, value) {
 // @returns {Function} Function that sets up two-way binding
 export function bind (reactor, key) {
   return ($) => {
-    $.oninput = () => { reactor[key] = $.value }
+    $.addEventListener('input', () => { reactor[key] = $.value })
     return new Observer(() => { $.value = reactor[key] })
   }
 }
