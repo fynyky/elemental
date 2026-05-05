@@ -146,11 +146,11 @@ export const el = (descriptor, ...children) => {
       self.insertBefore(promisePlaceholder, insertionPoint)
 
       child.then(value => {
-        if (promisePlaceholder.parentElement === self) {
+        if (promisePlaceholder.parentNode === self) {
           append(value, promisePlaceholder)
         }
       }).finally(() => {
-        if (promisePlaceholder.parentElement === self) {
+        if (promisePlaceholder.parentNode === self) {
           promisePlaceholder.remove()
         }
       })
