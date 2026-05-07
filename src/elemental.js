@@ -146,11 +146,11 @@ export const el = (descriptor, ...children) => {
       self.insertBefore(promisePlaceholder, insertionPoint)
 
       child.then(value => {
-        if (promisePlaceholder.parentElement === self) {
+        if (promisePlaceholder.parentNode === self) {
           append(value, promisePlaceholder)
         }
       }).finally(() => {
-        if (promisePlaceholder.parentElement === self) {
+        if (promisePlaceholder.parentNode === self) {
           promisePlaceholder.remove()
         }
       })
@@ -252,7 +252,7 @@ export function attr (attribute, value) {
 // @returns {Function} Function that sets up two-way binding
 export function bind (reactor, key) {
   return ($) => {
-    $.oninput = () => { reactor[key] = $.value }
+    $.addEventListener('input', () => { reactor[key] = $.value })
     return new Observer(() => { $.value = reactor[key] })
   }
 }

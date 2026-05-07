@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "defaultMode": "bypassPermissions",
+    "deny": [
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push origin --delete *)",
+      "Bash(git push *:master)",
+      "Bash(git push *:main)",
+      "Bash(git push *:release*)",
+      "Bash(git push *:refs/heads/master)",
+      "Bash(git push *:refs/heads/main)",
+      "Bash(git push *:refs/heads/release*)",
+      "Bash(gh pr merge *)",
+      "Write(.claude/settings.json)",
+      "Write(.claude/settings.local.json)" 
+    ]
+  }
+}
