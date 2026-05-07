@@ -228,7 +228,7 @@ Similarly the `bind(reactor, key)` function is provided as a shorthand for
 
 ```javascript
 $ => {
-  $.oninput = () => { reactor[key] = $.value }
+  $.addEventListener('input', () => { reactor[key] = $.value })
   return new Observer(() => { $.value = reactor[key] })
 }
 ```
@@ -739,7 +739,7 @@ el('h1', self => self.setAttribute('id', 'foo'))
 // These 2 are equivalent
 el('h1', bind(rx, 'foo'))
 el('h1', self => {
-  self.oninput = () => { rx['foo'] = self.value }
+  self.addEventListener('input', () => { rx['foo'] = self.value })
   return new Observer(() => { self.value = rx['foo'] })
 })
 
