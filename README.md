@@ -30,7 +30,7 @@ rx.name = 'Darth'
 //   <p class="p more class names">My name is Darth</p>
 ```
 - `el` is a function that creates elements then attaches children to them
-  - The first argument is the type of element to create (or an existing element to reuse)
+  - The first argument is the type of element to create, an existing element to reuse, or a CSS selector (starting with `#` or `.`) to find an existing element
   - Subsequent arguments are appended as children
   - Functions are run given their parent, and their return values are appended
   - `Observer` functions do the same, but their children get replaced when updated
@@ -68,7 +68,6 @@ import {
   batch,
   shuck
 } from '@fynyky/elemental'
-```
 ```
 
 It is also available directly from [unpkg](https://unpkg.com). You can import it in JavaScript using
@@ -159,8 +158,10 @@ el(document.body,
 ```html
 <html>
   <body>
-    <h1 class="h1">Title Text</h1>
-    <p class="p">Paragraph text</p>
+    <main class="main">
+      <h1 class="h1">Title Text</h1>
+      <p class="p">Paragraph text</p>
+    </main>
   </body>
 </html>
 ```
@@ -172,7 +173,7 @@ el(document.body,
 ```javascript
 el('h1', function() {
   this.id = 'foo'
-  this.onClick = () => console.log('clicked!')
+  this.onclick = () => console.log('clicked!')
   this.style.color = 'red'
 })
 ```
@@ -186,7 +187,7 @@ The parent is also provided as the first argument to the function when it is cal
 ```javascript
 el('h1', x => {
   x.id = 'foo'
-  x.onClick = () => console.log('clicked!')
+  x.onclick = () => console.log('clicked!')
   x.style.color = 'red'
 })
 ```
@@ -228,7 +229,7 @@ Similarly the `bind(reactor, key)` function is provided as a shorthand for
 
 ```javascript
 $ => {
-  $.oninput = () => { reactor[key] = $.value }
+  $.addEventListener('input', () => { reactor[key] = $.value })
   return new Observer(() => { $.value = reactor[key] })
 }
 ```
@@ -243,7 +244,7 @@ el('input', bind(rx, 'name'))
 
 --------------------------------------------------------------------------------
 
-`Array` arguments are flattened and its elements recursively appended.
+`Iterable` arguments (arrays, Sets, NodeLists, generators, etc.) are flattened and their elements recursively appended.
 
 ```javascript
 el('h1', [
@@ -259,10 +260,27 @@ el('h1', [
 
 --------------------------------------------------------------------------------
 
+`null` and `undefined` children are silently ignored. This makes conditional rendering straightforward.
+
+```javascript
+const showTitle = false
+el('div',
+  showTitle ? el('h1', 'Title') : null,  // null is ignored
+  el('p', 'Always shown')
+)
+```
+
+```html
+<div class="div"><p class="p">Always shown</p></div>
+```
+
+--------------------------------------------------------------------------------
+
 `Promise` arguments create a comment placeholder.
 
 ```javascript
-let somePromise = new Promise()
+let resolve
+const somePromise = new Promise(r => { resolve = r })
 el('h1', somePromise)
 ```
 
@@ -273,7 +291,7 @@ el('h1', somePromise)
 When the promise resolves this placeholder is replaced with the resolved value.
 
 ```javascript
-somePromise.resolve('resolved!')
+resolve('resolved!')
 ```
 
 ```html
@@ -695,10 +713,11 @@ el('h1', x => { x.id = 'foo' }) // Also creates <h1 class="h1" id="foo"></h1>
 el('h1', () => "return value") // Creates <h1 class="h1">return value</h1>
                                // Return values are appended as children
 
-let aPromise = new Promise()
+let resolve
+const aPromise = new Promise(r => { resolve = r })
 el('h1', aPromise) // Creates <h1 class="h1"><!-- promisePlaceholder --></h1>
                    // Places a comment to be replaced when the promise resolves
-aPromise.resolve('resolved!') // Becomes <h1 class="h1">resolved!</h1>
+resolve('resolved!') // Becomes <h1 class="h1">resolved!</h1>
 
 
 // Example of how el works with reactors and observers
@@ -728,7 +747,7 @@ rx.foo = 'bar'
 
 
 el('h1', ['foo', 'bar', 'qux']) // Creates <h1 class="h1">foobarqux</h1>
-                                // Arrays or any iterable are done recursively
+                                // Any iterable (arrays, Sets, generators, etc.) are done recursively
                                 
 // attr is shorthand for setting attributes
 // These 2 are equivalent
@@ -737,9 +756,9 @@ el('h1', self => self.setAttribute('id', 'foo'))
 
 // bind is shorthand for 2 way binding with a reactor
 // These 2 are equivalent
-el('h1', bind(rx, 'foo'))
-el('h1', self => {
-  self.oninput = () => { rx['foo'] = self.value }
+el('input', bind(rx, 'foo'))
+el('input', self => {
+  self.addEventListener('input', () => { rx['foo'] = self.value })
   return new Observer(() => { self.value = rx['foo'] })
 })
 
