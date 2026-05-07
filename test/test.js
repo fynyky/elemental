@@ -138,6 +138,45 @@ describe('Element creation', () => {
     )
     assert(result.outerHTML === '<div class="foo"><div class="bar"><div class="baz">qux</div></div></div>')
   })
+
+  it('can grab an existing element by id query', () => {
+    const base = document.createElement('div')
+    base.id = 'foo'
+    document.body.appendChild(base)
+    const result = el('#foo')
+    assert(result === base)
+  })
+
+  it('can wrap an existing element and add children', () => {
+    const base = document.createElement('div')
+    const result = el(base, 'foo', el('bar'))
+    assert(result === base)
+    assert(result.outerHTML === '<div>foo<div class="bar"></div></div>')
+  })
+
+  it('throws on invalid descriptor type', () => {
+    assert.throws(() => el(42), TypeError)
+  })
+
+  it('throws when selector is not found', () => {
+    assert.throws(() => el('.nonexistent'), Error)
+  })
+
+  it('throws on invalid child type', () => {
+    assert.throws(() => el('foo', 42), TypeError)
+  })
+
+  it('does not insert Promise content if placeholder was removed', (done) => {
+    const result = el('foo', new Promise(resolve => {
+      setTimeout(() => resolve('bar'), 20)
+    }))
+    assert(result.outerHTML === '<div class="foo"><!--promisePlaceholder--></div>')
+    result.innerHTML = ''
+    setTimeout(() => {
+      assert(result.outerHTML === '<div class="foo"></div>')
+      done()
+    }, 30)
+  })
 })
 
 describe('Reactivity', () => {
@@ -506,5 +545,35 @@ describe('Clean up', () => {
         done()
       }, 10)
     }, 10)
+  })
+
+  it('restarts observer when re-added to DOM', (done) => {
+    const rx = new Reactor()
+    rx.bar = 'baz'
+    const result = el('foo', ob(() => rx.bar))
+    document.body.appendChild(result)
+    setTimeout(() => {
+      result.remove()
+      document.body.appendChild(result)
+      setTimeout(() => {
+        rx.bar = 'qux'
+        assert.equal(result.outerHTML, '<div class="foo"><!--observerStart-->qux<!--observerEnd--></div>')
+        result.remove()
+        done()
+      }, 10)
+    }, 10)
+  })
+
+  it('removes placeholder when Promise rejects', (done) => {
+    const rejection = new Promise((_resolve, reject) => {
+      setTimeout(() => reject(new Error('test')), 10)
+    })
+    rejection.catch(() => {})
+    const result = el('foo', rejection)
+    assert.equal(result.outerHTML, '<div class="foo"><!--promisePlaceholder--></div>')
+    setTimeout(() => {
+      assert.equal(result.outerHTML, '<div class="foo"></div>')
+      done()
+    }, 20)
   })
 })
