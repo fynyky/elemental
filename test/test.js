@@ -39,6 +39,27 @@ describe('Element creation', () => {
     assert.equal(result.className, 'bar')
   })
 
+  it('can create an element with CSS selector syntax: tag.class#id', () => {
+    const result = el('section.foo#bar')
+    assert.equal(result.tagName.toLowerCase(), 'section')
+    assert.equal(result.className, 'foo')
+    assert.equal(result.id, 'bar')
+  })
+
+  it('can create an element with CSS selector syntax: .class#id (no tag)', () => {
+    const result = el('.foo#bar')
+    assert.equal(result.tagName.toLowerCase(), 'div')
+    assert.equal(result.className, 'foo')
+    assert.equal(result.id, 'bar')
+  })
+
+  it('can create an element with multiple classes and multiple ids', () => {
+    const result = el('h1.foo.bar#baz#qux')
+    assert.equal(result.tagName.toLowerCase(), 'h1')
+    assert.equal(result.className, 'foo bar')
+    assert.equal(result.id, 'qux')
+  })
+
   it('passes unknown tags straight through to createElement', () => {
     const result = el('unknown.foo')
     assert.equal(result.tagName.toLowerCase(), 'unknown')

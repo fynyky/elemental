@@ -711,11 +711,11 @@ resolve('resolved!') // Becomes <h1>resolved!</h1>
 // Attached observers use comments to bookmark their children 
 let rx = new Reactor({ foo: 'foo' })
 let reactiveEl = el('h1', ob(() => rx.foo)) 
-// Creates 
+// Creates
 // <h1>
-  // <!-- observerStart -->
-  // foo
-  // <!-- observerEnd -->
+//   <!-- observerStart -->
+//   foo
+//   <!-- observerEnd -->
 // </h1>
 
 document.body.appendChild(reactiveEl) // Attached observers sleep when their 
