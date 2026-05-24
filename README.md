@@ -89,12 +89,11 @@ el('div.foo.bar')   // <div class="foo bar"></div>
 el('section')       // <section></section>
 ```
 
-If the tag is omitted, it defaults to `div`. Any tag name is accepted, including custom elements:
+If the tag is omitted, it defaults to `div`.
 
 ```javascript
 el('.card')            // <div class="card"></div>
 el('#hero')            // <div id="hero"></div>
-el('my-widget.active') // <my-widget class="active"></my-widget>
 ```
 
 If given an existing `Element` it does nothing on its own but uses the provided element as a target for applying the `children` arguments. For example you can append things to the document body by doing
@@ -678,9 +677,6 @@ el('h1.foo')      // Creates <h1 class="foo">
 el('h1#bar.foo')  // Creates <h1 id="bar" class="foo">
 el('.foo')        // Creates <div class="foo">
 el('#foo')        // Creates <div id="foo">
-
-el('my-widget')     // Creates <my-widget> — any tag is passed through
-el('my-widget.foo') // Creates <my-widget class="foo">
 
 let aDiv = document.createElement('div')
 el(aDiv) // Uses the provided element instead of creating a new one
