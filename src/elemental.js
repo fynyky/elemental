@@ -91,6 +91,9 @@ export const el = (descriptor, ...children) => {
   // Create new element from CSS selector string: 'tag.class#id'
   // Tag is the leading word (defaults to div), classes from .class, id from #id
   } else if (typeof descriptor === 'string') {
+    if (descriptor.includes(' ')) {
+      throw new TypeError(`el descriptor "${descriptor}" contains a space — use CSS selector syntax e.g. "h1.foo.bar"`)
+    }
     const tagMatch = descriptor.match(/^([a-zA-Z][a-zA-Z0-9-]*)/)
     const tag = tagMatch && VALID_HTML_TAGS.includes(tagMatch[1]) ? tagMatch[1] : 'div'
     const newElement = document.createElement(tag)

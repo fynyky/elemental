@@ -184,6 +184,10 @@ describe('Element creation', () => {
     assert.throws(() => el(42), TypeError)
   })
 
+  it('throws when descriptor contains a space', () => {
+    assert.throws(() => el('h1 foo bar'), TypeError)
+  })
+
   it('throws on invalid child type', () => {
     assert.throws(() => el('.foo', 42), TypeError)
   })
