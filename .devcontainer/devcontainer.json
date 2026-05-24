@@ -8,7 +8,7 @@
       "onAutoForward": "openPreview"
     }
   },
-  "postCreateCommand": "npm install && npx playwright install --with-deps && npm install -g @anthropic-ai/claude-code",
+  "postCreateCommand": "npm install && npm install -g @anthropic-ai/claude-code",
   "customizations": {
     "vscode": {
       "extensions": [
