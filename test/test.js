@@ -8,14 +8,10 @@ afterEach(() => {
 })
 
 describe('Element creation', () => {
-  it('can create a basic element by tag', () => {
-    const result = el('div')
-    assert.equal(result.outerHTML, '<div></div>')
-  })
-
-  it('can create a valid HTML tag', () => {
-    const result = el('h1')
-    assert(result.outerHTML === '<h1></h1>')
+  it('can create an element by tag', () => {
+    assert.equal(el('div').outerHTML, '<div></div>')
+    assert.equal(el('h1').outerHTML, '<h1></h1>')
+    assert.equal(el('section').outerHTML, '<section></section>')
   })
 
   it('can create an element with CSS selector syntax: tag.class', () => {
@@ -186,6 +182,11 @@ describe('Element creation', () => {
 
   it('throws when descriptor contains a space', () => {
     assert.throws(() => el('h1 foo bar'), TypeError)
+  })
+
+  it('ignores null and undefined children', () => {
+    const result = el('.foo', null, undefined, 'bar')
+    assert.equal(result.outerHTML, '<div class="foo">bar</div>')
   })
 
   it('throws on invalid child type', () => {
@@ -379,7 +380,7 @@ describe('Reactivity', () => {
     }, 10)
   })
 
-  it('test for a simple element triggering', (done) => {
+  it('retriggers nested observer when reactor updates', (done) => {
     const rx = new Reactor()
     rx.title = 'foo'
     const result = el('article', ob(() => {
