@@ -19,9 +19,9 @@ describe('Element creation', () => {
   })
 
   it('can create an element with CSS selector syntax: tag.class', () => {
-    const result = el('button.add-btn')
+    const result = el('button.foo')
     assert.equal(result.tagName.toLowerCase(), 'button')
-    assert.equal(result.className, 'add-btn')
+    assert.equal(result.className, 'foo')
   })
 
   it('can create an element with CSS selector syntax: tag.class.class2', () => {
@@ -31,16 +31,16 @@ describe('Element creation', () => {
   })
 
   it('can create an element with CSS selector syntax: tag#id', () => {
-    const result = el('section#hero')
+    const result = el('section#foo')
     assert.equal(result.tagName.toLowerCase(), 'section')
-    assert.equal(result.id, 'hero')
+    assert.equal(result.id, 'foo')
   })
 
   it('can create an element with CSS selector syntax: tag#id.class', () => {
-    const result = el('input#name.text-field')
+    const result = el('input#foo.bar')
     assert.equal(result.tagName.toLowerCase(), 'input')
-    assert.equal(result.id, 'name')
-    assert.equal(result.className, 'text-field')
+    assert.equal(result.id, 'foo')
+    assert.equal(result.className, 'bar')
   })
 
   it('defaults to div for unknown tag in CSS selector syntax', () => {

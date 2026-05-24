@@ -83,10 +83,10 @@ The function `el(description, children...)` builds DOM elements. It appends the 
 The `description` can be a `String` or an existing `Element`. If given a `String`, it creates a new element using **CSS selector syntax**: the tag comes first, followed by `.class` and `#id` segments.
 
 ```javascript
-el('button.add-btn')          // <button class="add-btn"></button>
-el('input#name.text-field')   // <input id="name" class="text-field">
-el('div.foo.bar')             // <div class="foo bar"></div>
-el('section')                 // <section class="section"></section>
+el('button.foo')       // <button class="foo"></button>
+el('input#bar.baz')    // <input id="bar" class="baz">
+el('div.foo.bar')      // <div class="foo bar"></div>
+el('section')          // <section class="section"></section>
 ```
 
 If the tag is omitted or is not a valid HTML element, it defaults to `div`:
@@ -689,8 +689,8 @@ el('notATag header body h1') // Creates a div with classes "notATag header body 
                              // Only the first word is used for tag type
                              // Subsequent words are just added as classes
 
-el('.foo') // Strings starting with '.' or '#' are parsed as query selectors
-el('#foo') // They try to find a matching element instead of making a new one
+el('.foo') // Creates a div with class "foo": <div class="foo">
+el('#foo') // Creates a div with id "foo": <div id="foo">
 
 let aDiv = document.createElement('div')
 el(aDiv) // Uses the provided element instead of creating a new one
