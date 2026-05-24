@@ -169,10 +169,10 @@ describe('Element creation', () => {
     assert.equal(result.id, 'foo')
   })
 
-  it('uses the first id when multiple ids are given', () => {
+  it('uses the last id when multiple ids are given', () => {
     const result = el('#foo#bar')
     assert.equal(result.tagName.toLowerCase(), 'div')
-    assert.equal(result.id, 'foo')
+    assert.equal(result.id, 'bar')
   })
 
   it('can wrap an existing element and add children', () => {

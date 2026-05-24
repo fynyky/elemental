@@ -99,8 +99,8 @@ export const el = (descriptor, ...children) => {
     const newElement = document.createElement(tag)
     const classMatches = descriptor.match(/\.(-?[a-zA-Z_][a-zA-Z0-9_-]*)/g)
     if (classMatches) newElement.className = classMatches.map(c => c.slice(1)).join(' ')
-    const idMatch = descriptor.match(/#(-?[a-zA-Z_][a-zA-Z0-9_-]*)/)
-    if (idMatch) newElement.id = idMatch[1]
+    const idMatches = descriptor.match(/#(-?[a-zA-Z_][a-zA-Z0-9_-]*)/g)
+    if (idMatches) newElement.id = idMatches[idMatches.length - 1].slice(1)
     self = newElement
   } else {
     throw new TypeError('el descriptor expects a String or an Element')
