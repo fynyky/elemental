@@ -80,22 +80,27 @@ Elements
 --------
 The function `el(description, children...)` builds DOM elements. It appends the `children` arguments to a parent element created/referenced by the `description`.
 
-The `description` can be a `String` or an existing `Element`. If given a `String` it creates a new `Element` whose classes are the entire description, and the tag type is the first word of the description.
+The `description` can be a `String` or an existing `Element`. If given a `String`, it creates a new element using **CSS selector syntax**: the tag comes first, followed by `.class` and `#id` segments.
 
 ```javascript
-el('h1 foo bar')
-```
-```html
-<h1 class="h1 foo bar"></h1>
+el('button.add-btn')          // <button class="add-btn"></button>
+el('input#name.text-field')   // <input id="name" class="text-field">
+el('div.foo.bar')             // <div class="foo bar"></div>
+el('section')                 // <section class="section"></section>
 ```
 
-If the first word is not a valid HTML tag it defaults to making a div
+If the tag is omitted or is not a valid HTML element, it defaults to `div`:
 
 ```javascript
-el('foo bar')
+el('.card')      // Note: starts with . so this finds an existing element (see below)
+el('unknown.foo') // <div class="foo"></div>
 ```
-```html
-<div class="foo bar"></div>
+
+**Space-separated format (legacy):** You can also use space-separated words where the whole string becomes the `className` and the first word is the tag if it is a valid HTML element:
+
+```javascript
+el('h1 foo bar')  // <h1 class="h1 foo bar"></h1>
+el('foo bar')     // <div class="foo bar"></div>
 ```
 
 If given an existing `Element` it does nothing on its own but uses the provided element as a target for applying the `children` arguments. For example you can append things to the document body by doing

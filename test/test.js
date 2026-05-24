@@ -18,6 +18,37 @@ describe('Element creation', () => {
     assert(result.outerHTML === '<h1 class="h1"></h1>')
   })
 
+  it('can create an element with CSS selector syntax: tag.class', () => {
+    const result = el('button.add-btn')
+    assert.equal(result.tagName.toLowerCase(), 'button')
+    assert.equal(result.className, 'add-btn')
+  })
+
+  it('can create an element with CSS selector syntax: tag.class.class2', () => {
+    const result = el('div.foo.bar')
+    assert.equal(result.tagName.toLowerCase(), 'div')
+    assert.equal(result.className, 'foo bar')
+  })
+
+  it('can create an element with CSS selector syntax: tag#id', () => {
+    const result = el('section#hero')
+    assert.equal(result.tagName.toLowerCase(), 'section')
+    assert.equal(result.id, 'hero')
+  })
+
+  it('can create an element with CSS selector syntax: tag#id.class', () => {
+    const result = el('input#name.text-field')
+    assert.equal(result.tagName.toLowerCase(), 'input')
+    assert.equal(result.id, 'name')
+    assert.equal(result.className, 'text-field')
+  })
+
+  it('defaults to div for unknown tag in CSS selector syntax', () => {
+    const result = el('unknown.foo')
+    assert.equal(result.tagName.toLowerCase(), 'div')
+    assert.equal(result.className, 'foo')
+  })
+
   it('can wrap an existing element', () => {
     const base = document.createElement('div')
     const result = el(base)

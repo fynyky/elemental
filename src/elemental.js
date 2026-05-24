@@ -96,14 +96,26 @@ export const el = (descriptor, ...children) => {
       throw new Error(`el descriptor selector "${descriptor}" not found`)
     }
   // Create new element from string descriptor
-  // If the first word is a valid html tag then use it, otherwise default to div
-  // The whole descriptor is added as classes
-  // So for example el('h1 foo bar') will create <h1 class="h1 foo bar"></h1>
   } else if (typeof descriptor === 'string') {
-    const firstWord = descriptor.split(' ')[0]
-    const tag = VALID_HTML_TAGS.includes(firstWord) ? firstWord : 'div'
-    const newElement = document.createElement(tag)
-    newElement.className = descriptor
+    let newElement
+    // CSS selector creation syntax: 'button.add-btn', 'input#my-id', 'div.foo.bar#id'
+    // Tag is the leading word, classes come from .class segments, id from #id segment
+    if (/[.#]/.test(descriptor)) {
+      const tagMatch = descriptor.match(/^([a-zA-Z][a-zA-Z0-9-]*)/)
+      const tag = tagMatch && VALID_HTML_TAGS.includes(tagMatch[1]) ? tagMatch[1] : 'div'
+      newElement = document.createElement(tag)
+      const classMatches = descriptor.match(/\.(-?[a-zA-Z_][a-zA-Z0-9_-]*)/g)
+      if (classMatches) newElement.className = classMatches.map(c => c.slice(1)).join(' ')
+      const idMatch = descriptor.match(/#(-?[a-zA-Z_][a-zA-Z0-9_-]*)/)
+      if (idMatch) newElement.id = idMatch[1]
+    } else {
+      // Space-separated format: first word is tag (if valid), whole string becomes className
+      // e.g. el('h1 foo bar') creates <h1 class="h1 foo bar">
+      const firstWord = descriptor.split(' ')[0]
+      const tag = VALID_HTML_TAGS.includes(firstWord) ? firstWord : 'div'
+      newElement = document.createElement(tag)
+      newElement.className = descriptor
+    }
     self = newElement
   } else {
     throw new TypeError('el descriptor expects a String or an Element')
