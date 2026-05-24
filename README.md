@@ -13,15 +13,15 @@ el(document.body,
   el('main',
     el('h1', 'Hello World!'),
     el('h2', (x) => { x.id = 'foo' }, () => 'returned text'),
-    el('defaults to div', ['this', 'is', 'an', 'array']),
-    el('p more class names', ob(() => ('My name is ' + rx.name)))
+    el('div.note', ['this', 'is', 'an', 'array']),
+    el('p.greeting', ob(() => ('My name is ' + rx.name)))
   )
 )
-// <main class="main">
-//   <h1 class="h1">Hello World!</h1>
-//   <h2 class="h2" id="foo">returned text</h2>
-//   <div class="defaults to div">thisisanarray</div>
-//   <p class="p more class names">My name is Anakin</p>
+// <main>
+//   <h1>Hello World!</h1>
+//   <h2 id="foo">returned text</h2>
+//   <div class="note">thisisanarray</div>
+//   <p class="greeting">My name is Anakin</p>
 // </main>
 
 rx.name = 'Darth'
@@ -83,10 +83,10 @@ The function `el(description, children...)` builds DOM elements. It appends the 
 The `description` can be a `String` or an existing `Element`. If given a `String`, it creates a new element using **CSS selector syntax**: the tag comes first, followed by `.class` and `#id` segments.
 
 ```javascript
-el('button.foo')       // <button class="foo"></button>
-el('input#bar.baz')    // <input id="bar" class="baz">
-el('div.foo.bar')      // <div class="foo bar"></div>
-el('section')          // <section class="section"></section>
+el('button.foo')    // <button class="foo"></button>
+el('input#bar.baz') // <input id="bar" class="baz">
+el('div.foo.bar')   // <div class="foo bar"></div>
+el('section')       // <section></section>
 ```
 
 If the tag is omitted or is not a valid HTML element, it defaults to `div`:
@@ -95,13 +95,6 @@ If the tag is omitted or is not a valid HTML element, it defaults to `div`:
 el('.card')       // <div class="card"></div>
 el('#hero')       // <div id="hero"></div>
 el('unknown.foo') // <div class="foo"></div>
-```
-
-**Space-separated format (legacy):** You can also use space-separated words where the whole string becomes the `className` and the first word is the tag if it is a valid HTML element:
-
-```javascript
-el('h1 foo bar')  // <h1 class="h1 foo bar"></h1>
-el('foo bar')     // <div class="foo bar"></div>
 ```
 
 If given an existing `Element` it does nothing on its own but uses the provided element as a target for applying the `children` arguments. For example you can append things to the document body by doing
@@ -132,7 +125,7 @@ el('h1', 'hello world')
 ```
 
 ```html
-<h1 class="h1">hello world</h1>
+<h1>hello world</h1>
 ```
 
 `Element` arguments are just appended directly
@@ -142,7 +135,7 @@ el('h1', document.createElement('div'))
 ```
 
 ```html
-<h1 class="h1"><div></div></h1>
+<h1><div></div></h1>
 ```
 
 Since `el` itself returns elements, this allows nesting of `el` calls to declaratively create the DOM
@@ -159,7 +152,7 @@ el(document.body,
 <html>
   <body>
     <main class="main">
-      <h1 class="h1">Title Text</h1>
+      <h1>Title Text</h1>
       <p class="p">Paragraph text</p>
     </main>
   </body>
@@ -179,7 +172,7 @@ el('h1', function() {
 ```
 
 ```html
-<h1 class="h1" id="foo"></h1>
+<h1 id="foo"></h1>
 ```
 
 The parent is also provided as the first argument to the function when it is called. This allows [arrow functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions) to work.
@@ -193,7 +186,7 @@ el('h1', x => {
 ```
 
 ```html
-<h1 class="h1" id="foo"></h1>
+<h1 id="foo"></h1>
 ```
 
 If the function returns a value, that value is appended as a child.
@@ -206,7 +199,7 @@ el('h1',
 )
 ```
 ```html
-<h1 class="h1">some text more text</h1>
+<h1>some text more text</h1>
 ```
 
 The `attr(attribute, value)` function is provided as a shorthand for
@@ -222,7 +215,7 @@ el('h1', attr('id', 'foo'))
 ```
 
 ```html
-<h1 class="h1" id="foo"></h1>
+<h1 id="foo"></h1>
 ```
 
 Similarly the `bind(reactor, key)` function is provided as a shorthand for
@@ -255,7 +248,7 @@ el('h1', [
 ```
 
 ```html
-<h1 class="h1">some text<div></div>boop</h1>
+<h1>some text<div></div>boop</h1>
 ```
 
 --------------------------------------------------------------------------------
@@ -285,7 +278,7 @@ el('h1', somePromise)
 ```
 
 ```html
-<h1 class="h1"><!-- promisePlaceholder --></h1>
+<h1><!-- promisePlaceholder --></h1>
 ```
 
 When the promise resolves this placeholder is replaced with the resolved value.
@@ -295,7 +288,7 @@ resolve('resolved!')
 ```
 
 ```html
-<h1 class="h1">resolved!</h1>
+<h1>resolved!</h1>
 ```
 --------------------------------------------------------------------------------
 
@@ -307,7 +300,7 @@ el('h1', ob(() => rx.name))
 ```
 
 ```html
-<h1 class="h1">
+<h1>
   <!-- observerStart -->
   foo
   <!-- observerEnd -->
@@ -321,7 +314,7 @@ rx.name = 'bar'
 ```
 
 ```html
-<h1 class="h1">
+<h1>
   <!-- observerStart -->
   bar
   <!-- observerEnd -->
@@ -680,44 +673,41 @@ import {
 } from '@fynyky/elemental'
 
 // el(description, children...)
-el('h1') // Creates a h1 element with a class "h1"
+el('h1')          // Creates <h1>
+el('h1.foo')      // Creates <h1 class="foo">
+el('h1#bar.foo')  // Creates <h1 id="bar" class="foo">
+el('.foo')        // Creates <div class="foo">
+el('#foo')        // Creates <div id="foo">
 
-el('notAValidTag') // Creates a div with class "notAValidTag"
-                   // Anything not a valid html tag defaults to a div
-
-el('notATag header body h1') // Creates a div with classes "notATag header body h1"
-                             // Only the first word is used for tag type
-                             // Subsequent words are just added as classes
-
-el('.foo') // Creates a div with class "foo": <div class="foo">
-el('#foo') // Creates a div with id "foo": <div id="foo">
+el('notAValidTag') // Creates <div> — unknown tags default to div
+el('notAValidTag.foo') // Creates <div class="foo">
 
 let aDiv = document.createElement('div')
 el(aDiv) // Uses the provided element instead of creating a new one
 
 
-el('h1', 'foo') // Creates <h1 class="h1">foo</h1>
+el('h1', 'foo') // Creates <h1>foo</h1>
                 // Strings provided as children are inserted as text nodes
 
-el('h1', aDiv)  // Creates <h1 class="h1"><div></div></h1>
+el('h1', aDiv)  // Creates <h1><div></div></h1>
                 // Elements provided as children are just appended
 
-el('h1', function(){this.id = 'foo'}) // Creates <h1 class="h1" id="foo"></h1>
+el('h1', function(){this.id = 'foo'}) // Creates <h1 id="foo"></h1>
                                       // Functions provided as children are 
                                       // executed in the context of the parent
 
-el('h1', x => { x.id = 'foo' }) // Also creates <h1 class="h1" id="foo"></h1>
+el('h1', x => { x.id = 'foo' }) // Also creates <h1 id="foo"></h1>
                                 // The parent is also provided as an argument
                                 // This allows arrow functions to work
 
-el('h1', () => "return value") // Creates <h1 class="h1">return value</h1>
+el('h1', () => "return value") // Creates <h1>return value</h1>
                                // Return values are appended as children
 
 let resolve
 const aPromise = new Promise(r => { resolve = r })
-el('h1', aPromise) // Creates <h1 class="h1"><!-- promisePlaceholder --></h1>
+el('h1', aPromise) // Creates <h1><!-- promisePlaceholder --></h1>
                    // Places a comment to be replaced when the promise resolves
-resolve('resolved!') // Becomes <h1 class="h1">resolved!</h1>
+resolve('resolved!') // Becomes <h1>resolved!</h1>
 
 
 // Example of how el works with reactors and observers
@@ -726,7 +716,7 @@ resolve('resolved!') // Becomes <h1 class="h1">resolved!</h1>
 let rx = new Reactor({ foo: 'foo' })
 let reactiveEl = el('h1', ob(() => rx.foo)) 
 // Creates 
-// <h1 class="h1">
+// <h1>
   // <!-- observerStart -->
   // foo
   // <!-- observerEnd -->
@@ -739,14 +729,14 @@ document.body.appendChild(reactiveEl) // Attached observers sleep when their
 // When updated anything between the bookmarks gets replaced
 rx.foo = 'bar'  
 // Updates to 
-// <h1 class="h1">
+// <h1>
   // <!-- observerStart -->
   // bar
   // <!-- observerEnd -->
 // </h1>
 
 
-el('h1', ['foo', 'bar', 'qux']) // Creates <h1 class="h1">foobarqux</h1>
+el('h1', ['foo', 'bar', 'qux']) // Creates <h1>foobarqux</h1>
                                 // Any iterable (arrays, Sets, generators, etc.) are done recursively
                                 
 // attr is shorthand for setting attributes

@@ -88,27 +88,16 @@ export const el = (descriptor, ...children) => {
   // Trivial case: just use the given element
   if (descriptor instanceof Element) {
     self = descriptor
-  // Create new element from string descriptor
+  // Create new element from CSS selector string: 'tag.class#id'
+  // Tag is the leading word (defaults to div), classes from .class, id from #id
   } else if (typeof descriptor === 'string') {
-    let newElement
-    // CSS selector creation syntax: 'button.add-btn', 'input#my-id', 'div.foo.bar#id'
-    // Tag is the leading word, classes come from .class segments, id from #id segment
-    if (/[.#]/.test(descriptor)) {
-      const tagMatch = descriptor.match(/^([a-zA-Z][a-zA-Z0-9-]*)/)
-      const tag = tagMatch && VALID_HTML_TAGS.includes(tagMatch[1]) ? tagMatch[1] : 'div'
-      newElement = document.createElement(tag)
-      const classMatches = descriptor.match(/\.(-?[a-zA-Z_][a-zA-Z0-9_-]*)/g)
-      if (classMatches) newElement.className = classMatches.map(c => c.slice(1)).join(' ')
-      const idMatch = descriptor.match(/#(-?[a-zA-Z_][a-zA-Z0-9_-]*)/)
-      if (idMatch) newElement.id = idMatch[1]
-    } else {
-      // Space-separated format: first word is tag (if valid), whole string becomes className
-      // e.g. el('h1 foo bar') creates <h1 class="h1 foo bar">
-      const firstWord = descriptor.split(' ')[0]
-      const tag = VALID_HTML_TAGS.includes(firstWord) ? firstWord : 'div'
-      newElement = document.createElement(tag)
-      newElement.className = descriptor
-    }
+    const tagMatch = descriptor.match(/^([a-zA-Z][a-zA-Z0-9-]*)/)
+    const tag = tagMatch && VALID_HTML_TAGS.includes(tagMatch[1]) ? tagMatch[1] : 'div'
+    const newElement = document.createElement(tag)
+    const classMatches = descriptor.match(/\.(-?[a-zA-Z_][a-zA-Z0-9_-]*)/g)
+    if (classMatches) newElement.className = classMatches.map(c => c.slice(1)).join(' ')
+    const idMatch = descriptor.match(/#(-?[a-zA-Z_][a-zA-Z0-9_-]*)/)
+    if (idMatch) newElement.id = idMatch[1]
     self = newElement
   } else {
     throw new TypeError('el descriptor expects a String or an Element')
