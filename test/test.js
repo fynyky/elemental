@@ -43,9 +43,9 @@ describe('Element creation', () => {
     assert.equal(result.className, 'bar')
   })
 
-  it('defaults to div for unknown tag in CSS selector syntax', () => {
+  it('passes unknown tags straight through to createElement', () => {
     const result = el('unknown.foo')
-    assert.equal(result.tagName.toLowerCase(), 'div')
+    assert.equal(result.tagName.toLowerCase(), 'unknown')
     assert.equal(result.className, 'foo')
   })
 

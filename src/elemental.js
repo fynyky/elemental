@@ -16,7 +16,7 @@
 // This enables automatic UI updates when the underlying data changes.
 
 import { Observer, shuck, hide } from 'reactorjs'
-import { getAllComments, getNodesBetween, VALID_HTML_TAGS } from './utils.js'
+import { getAllComments, getNodesBetween } from './utils.js'
 
 // Automatically start/stop observers when elements are added/removed from the DOM.
 // This prevents "orphan" observers from staying alive and updating nodes that are no longer relevant.
@@ -95,7 +95,7 @@ export const el = (descriptor, ...children) => {
       throw new TypeError(`el descriptor "${descriptor}" contains a space — use CSS selector syntax e.g. "h1.foo.bar"`)
     }
     const tagMatch = descriptor.match(/^([a-zA-Z][a-zA-Z0-9-]*)/)
-    const tag = tagMatch && VALID_HTML_TAGS.includes(tagMatch[1]) ? tagMatch[1] : 'div'
+    const tag = tagMatch ? tagMatch[1] : 'div'
     const newElement = document.createElement(tag)
     const classMatches = descriptor.match(/\.(-?[a-zA-Z_][a-zA-Z0-9_-]*)/g)
     if (classMatches) newElement.className = classMatches.map(c => c.slice(1)).join(' ')
