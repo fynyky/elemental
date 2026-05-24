@@ -25,7 +25,7 @@ const docObserver = new MutationObserver((mutationList, mutationObserver) => {
   for (const mutationRecord of mutationList) {
     // Collect all removed observer nodes
     const observersToStop = new Set()
-    for (const removedNode of Array.from(mutationRecord.removedNodes)) {
+    for (const removedNode of mutationRecord.removedNodes) {
       const comments = getAllComments(removedNode)
       for (const comment of comments) {
         const observer = observerGroups.get(comment)?.observer
@@ -34,7 +34,7 @@ const docObserver = new MutationObserver((mutationList, mutationObserver) => {
     }
     // Collect all added observer nodes
     const observersToStart = new Set()
-    for (const addedNode of Array.from(mutationRecord.addedNodes)) {
+    for (const addedNode of mutationRecord.addedNodes) {
       const comments = getAllComments(addedNode)
       for (const comment of comments) {
         const observer = observerGroups.get(comment)?.observer
@@ -61,7 +61,7 @@ const observerGroups = new WeakMap()
 // so that we can clean up observer markers even when the element is removed from the DOM
 const bookmarkObserver = new MutationObserver((mutationList, mutationObserver) => {
   for (const mutationRecord of mutationList) {
-    for (const removedNode of Array.from(mutationRecord.removedNodes)) {
+    for (const removedNode of mutationRecord.removedNodes) {
       observerGroups.get(removedNode)?.clear()
     }
   }
@@ -146,11 +146,11 @@ export const el = (descriptor, ...children) => {
       self.insertBefore(promisePlaceholder, insertionPoint)
 
       child.then(value => {
-        if (promisePlaceholder.parentElement === self) {
+        if (promisePlaceholder.parentNode === self) {
           append(value, promisePlaceholder)
         }
       }).finally(() => {
-        if (promisePlaceholder.parentElement === self) {
+        if (promisePlaceholder.parentNode === self) {
           promisePlaceholder.remove()
         }
       })
@@ -252,7 +252,7 @@ export function attr (attribute, value) {
 // @returns {Function} Function that sets up two-way binding
 export function bind (reactor, key) {
   return ($) => {
-    $.oninput = () => { reactor[key] = $.value }
+    $.addEventListener('input', () => { reactor[key] = $.value })
     return new Observer(() => { $.value = reactor[key] })
   }
 }
