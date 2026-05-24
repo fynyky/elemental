@@ -30,7 +30,7 @@ rx.name = 'Darth'
 //   <p class="p more class names">My name is Darth</p>
 ```
 - `el` is a function that creates elements then attaches children to them
-  - The first argument is the type of element to create, an existing element to reuse, or a CSS selector (starting with `#` or `.`) to find an existing element
+  - The first argument is a CSS selector string describing the element to create, or an existing element to append to
   - Subsequent arguments are appended as children
   - Functions are run given their parent, and their return values are appended
   - `Observer` functions do the same, but their children get replaced when updated
@@ -92,7 +92,8 @@ el('section')                 // <section class="section"></section>
 If the tag is omitted or is not a valid HTML element, it defaults to `div`:
 
 ```javascript
-el('.card')      // Note: starts with . so this finds an existing element (see below)
+el('.card')       // <div class="card"></div>
+el('#hero')       // <div id="hero"></div>
 el('unknown.foo') // <div class="foo"></div>
 ```
 
@@ -115,17 +116,11 @@ el(document.body, 'hello world')
 </html>
 ```
 
-For convenience, if the string provided starts with `#` or `.` then instead of creating a new element, the description will be used as a [selector](https://developer.mozilla.org/en-US/docs/Web/API/Document_object_model/Locating_DOM_elements_using_selectors) and will try to find an existing matching element in the document.
+To target an existing element by selector, use `document.querySelector` directly and pass the result:
 
 ```javascript
-el('#foo') // Finds an element with id="foo"
-el('.bar') // Finds an element whose classes contain "bar"
-```
-
-This is admittedly a bit crude but should handle the most common cases. For cases which fall outside of this you can just use `document.querySelector` directly and provide the element as the argument.
-
-```javascript
-el(document.querySelector('some query'))
+el(document.querySelector('#app'), 'hello world')
+el(document.querySelector('.container'), el('p', 'content'))
 ```
 
 --------------------------------------------------------------------------------

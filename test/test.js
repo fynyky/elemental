@@ -56,13 +56,10 @@ describe('Element creation', () => {
     assert(result.outerHTML === '<div></div>')
   })
 
-  it('can grab an existing element by query', () => {
-    const base = document.createElement('div')
-    base.className = 'foo'
-    assert.equal(base.outerHTML, '<div class="foo"></div>')
-    document.body.appendChild(base)
+  it('can create an element with CSS selector syntax: .class only', () => {
     const result = el('.foo')
-    assert(result === base)
+    assert.equal(result.tagName.toLowerCase(), 'div')
+    assert.equal(result.className, 'foo')
   })
 
   it('can fill an element with text', () => {
@@ -170,12 +167,10 @@ describe('Element creation', () => {
     assert(result.outerHTML === '<div class="foo"><div class="bar"><div class="baz">qux</div></div></div>')
   })
 
-  it('can grab an existing element by id query', () => {
-    const base = document.createElement('div')
-    base.id = 'foo'
-    document.body.appendChild(base)
+  it('can create an element with CSS selector syntax: #id only', () => {
     const result = el('#foo')
-    assert(result === base)
+    assert.equal(result.tagName.toLowerCase(), 'div')
+    assert.equal(result.id, 'foo')
   })
 
   it('can wrap an existing element and add children', () => {
@@ -187,10 +182,6 @@ describe('Element creation', () => {
 
   it('throws on invalid descriptor type', () => {
     assert.throws(() => el(42), TypeError)
-  })
-
-  it('throws when selector is not found', () => {
-    assert.throws(() => el('.nonexistent'), Error)
   })
 
   it('throws on invalid child type', () => {

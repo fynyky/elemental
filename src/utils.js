@@ -67,12 +67,3 @@ export function getNodesBetween (startNode, endNode) {
   }
   return result
 }
-
-// Helper function to check if a string should be used as a css query selector
-export function isTreatedAsQuerySelector (testString) {
-  if (typeof testString !== 'string' || testString.length === 0) {
-    return false
-  }
-  // Simple test: starts with # or .
-  return /^[.#]/.test(testString)
-}
