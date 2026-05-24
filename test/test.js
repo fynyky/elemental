@@ -169,6 +169,12 @@ describe('Element creation', () => {
     assert.equal(result.id, 'foo')
   })
 
+  it('uses the first id when multiple ids are given', () => {
+    const result = el('#foo#bar')
+    assert.equal(result.tagName.toLowerCase(), 'div')
+    assert.equal(result.id, 'foo')
+  })
+
   it('can wrap an existing element and add children', () => {
     const base = document.createElement('div')
     const result = el(base, 'foo', el('.bar'))
@@ -178,6 +184,8 @@ describe('Element creation', () => {
 
   it('throws on invalid descriptor type', () => {
     assert.throws(() => el(42), TypeError)
+    assert.throws(() => el(null), TypeError)
+    assert.throws(() => el(undefined), TypeError)
   })
 
   it('throws when descriptor contains a space', () => {
