@@ -25,9 +25,9 @@ el(document.body,
 // </main>
 
 rx.name = 'Darth'
-//   <p class="p more class names">My name is Anakin</p>
+//   <p class="greeting">My name is Anakin</p>
 // Changes to
-//   <p class="p more class names">My name is Darth</p>
+//   <p class="greeting">My name is Darth</p>
 ```
 - `el` is a function that creates elements then attaches children to them
   - The first argument is a CSS selector string describing the element to create, or an existing element to append to
@@ -151,9 +151,9 @@ el(document.body,
 ```html
 <html>
   <body>
-    <main class="main">
+    <main>
       <h1>Title Text</h1>
-      <p class="p">Paragraph text</p>
+      <p>Paragraph text</p>
     </main>
   </body>
 </html>
@@ -264,7 +264,7 @@ el('div',
 ```
 
 ```html
-<div class="div"><p class="p">Always shown</p></div>
+<div><p>Always shown</p></div>
 ```
 
 --------------------------------------------------------------------------------
@@ -840,10 +840,8 @@ Map.prototype.keys.call(shuck(mapReactor)) // works fine
 
 Development & Testing
 ---------------------
-Tests are stored in `test.js` to be run using Mocha.
+Tests are stored in `test/test.js` and run in real browsers using [Web Test Runner](https://modern-web.dev/docs/test-runner/overview/).
 
 Run `npm install` to install the dev dependencies.
 
 To run the tests run `npm test`.
-
-To run the tests in a browser environment run `npm run browserTest` and open the test page.
