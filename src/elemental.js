@@ -16,7 +16,7 @@
 // This enables automatic UI updates when the underlying data changes.
 
 import { Observer, shuck, hide } from 'reactorjs'
-import { getAllComments, getNodesBetween, isTreatedAsQuerySelector, VALID_HTML_TAGS } from './utils.js'
+import { getAllComments, getNodesBetween } from './utils.js'
 
 // Automatically start/stop observers when elements are added/removed from the DOM.
 // This prevents "orphan" observers from staying alive and updating nodes that are no longer relevant.
@@ -69,9 +69,8 @@ const bookmarkObserver = new MutationObserver((mutationList, mutationObserver) =
 
 // Main exported function. Creates a DOM element and appends children to it.
 //
-// @param {string|Element} descriptor - Tag/class string, CSS selector, or an existing Element.
-//   - If a string matches a tag or class, creates a new element with those classes.
-//   - If a string looks like a selector, finds and uses the existing element in the document.
+// @param {string|Element} descriptor - CSS selector string for creation, or an existing Element.
+//   - If a string, creates a new element: tag from the leading word, classes from .class, id from #id.
 //   - If an Element is provided, uses it directly.
 //
 // @param {...(string|Element|Function|Observer|Promise|Iterable)} children - Child nodes to append.
@@ -89,21 +88,20 @@ export const el = (descriptor, ...children) => {
   // Trivial case: just use the given element
   if (descriptor instanceof Element) {
     self = descriptor
-  // If it looks like a selector try to find the existing element
-  } else if (isTreatedAsQuerySelector(descriptor)) {
-    self = document.querySelector(descriptor)
-    if (!self) {
-      throw new Error(`el descriptor selector "${descriptor}" not found`)
-    }
-  // Create new element from string descriptor
-  // If the first word is a valid html tag then use it, otherwise default to div
-  // The whole descriptor is added as classes
-  // So for example el('h1 foo bar') will create <h1 class="h1 foo bar"></h1>
+  // Create new element from CSS selector string: 'tag.class#id'
+  // Tag is the leading word (defaults to div), classes from .class, id from #id
   } else if (typeof descriptor === 'string') {
-    const firstWord = descriptor.split(' ')[0]
-    const tag = VALID_HTML_TAGS.includes(firstWord) ? firstWord : 'div'
+    if (descriptor.includes(' ')) {
+      throw new TypeError(`el descriptor "${descriptor}" contains a space — use CSS selector syntax e.g. "h1.foo.bar"`)
+    }
+    const tagMatch = descriptor.match(/^([a-zA-Z][a-zA-Z0-9-]*)/)
+    const tag = tagMatch ? tagMatch[1] : 'div'
     const newElement = document.createElement(tag)
-    newElement.className = descriptor
+    const classMatches = descriptor.match(/\.(-?[a-zA-Z_][a-zA-Z0-9_-]*)/g)
+    if (classMatches) newElement.className = classMatches.map(c => c.slice(1)).join(' ')
+    const idMatches = descriptor.match(/#(-?[a-zA-Z_][a-zA-Z0-9_-]*)/g)
+    if (idMatches && idMatches.length > 1) throw new TypeError(`el descriptor "${descriptor}" contains multiple ids`)
+    if (idMatches) newElement.id = idMatches[0].slice(1)
     self = newElement
   } else {
     throw new TypeError('el descriptor expects a String or an Element')

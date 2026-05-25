@@ -1,6 +1,6 @@
 {
   "name": "@fynyky/elemental",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Simple reactive ui building without frameworks",
   "type": "module",
   "main": "dist/main.js",
@@ -10,11 +10,11 @@
     "dist/**/*"
   ],
   "scripts": {
-    "lint": "standard --fix",
+    "lint": "standard",
     "build": "rm -rf dist/ && parcel build",
-    "pretest": "npm run lint",
+    "pretest": "npm run lint && npx playwright install --with-deps",
     "test": "web-test-runner --config test/web-test-runner.config.mjs",
-    "prepack": "npm run lint && npm run build"
+    "prepack": "npm run build"
   },
   "dependencies": {
     "reactorjs": "^3.0.0"
