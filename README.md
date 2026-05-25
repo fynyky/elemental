@@ -47,6 +47,8 @@ Elemental is designed to be unobtrusive and unopinionated.
 
 Elemental is built on top of [Reactor.js](https://github.com/fynyky/reactor.js)
 
+Check out the [demo repo](https://github.com/fynyky/elemental-demo) for examples.
+
 Installation
 ------------
 
