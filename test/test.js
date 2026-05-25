@@ -53,11 +53,8 @@ describe('Element creation', () => {
     assert.equal(result.id, 'bar')
   })
 
-  it('can create an element with multiple classes and multiple ids', () => {
-    const result = el('h1.foo.bar#baz#qux')
-    assert.equal(result.tagName.toLowerCase(), 'h1')
-    assert.equal(result.className, 'foo bar')
-    assert.equal(result.id, 'qux')
+  it('throws when multiple ids are given alongside classes', () => {
+    assert.throws(() => el('h1.foo.bar#baz#qux'), TypeError)
   })
 
   it('passes unknown tags straight through to createElement', () => {
@@ -190,10 +187,8 @@ describe('Element creation', () => {
     assert.equal(result.id, 'foo')
   })
 
-  it('uses the last id when multiple ids are given', () => {
-    const result = el('#foo#bar')
-    assert.equal(result.tagName.toLowerCase(), 'div')
-    assert.equal(result.id, 'bar')
+  it('throws when multiple ids are given', () => {
+    assert.throws(() => el('#foo#bar'), TypeError)
   })
 
   it('can wrap an existing element and add children', () => {
