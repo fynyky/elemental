@@ -21,29 +21,36 @@ import { getAllComments, getNodesBetween } from './utils.js'
 // Automatically start/stop observers when elements are added/removed from the DOM.
 // This prevents "orphan" observers from staying alive and updating nodes that are no longer relevant.
 // Note: MutationObserver is native browser class and unrelated to reactor.js Observers
-const docObserver = new MutationObserver((mutationList, mutationObserver) => {
+const docObserver = new MutationObserver((mutationList) => {
   for (const mutationRecord of mutationList) {
-    // Collect all removed observer nodes
-    const observersToStop = new Set()
+    let observersToStop = null
+    let observersToStart = null
+
     for (const removedNode of mutationRecord.removedNodes) {
-      const comments = getAllComments(removedNode)
+      if (removedNode.nodeType === Node.TEXT_NODE) continue
+      const comments = removedNode.nodeType === Node.COMMENT_NODE
+        ? [removedNode]
+        : getAllComments(removedNode)
       for (const comment of comments) {
         const observer = observerGroups.get(comment)?.observer
-        if (observer) observersToStop.add(observer)
+        if (observer) (observersToStop ??= new Set()).add(observer)
       }
     }
-    // Collect all added observer nodes
-    const observersToStart = new Set()
+
     for (const addedNode of mutationRecord.addedNodes) {
-      const comments = getAllComments(addedNode)
+      if (addedNode.nodeType === Node.TEXT_NODE) continue
+      const comments = addedNode.nodeType === Node.COMMENT_NODE
+        ? [addedNode]
+        : getAllComments(addedNode)
       for (const comment of comments) {
         const observer = observerGroups.get(comment)?.observer
-        if (observer) observersToStart.add(observer)
+        if (observer) (observersToStart ??= new Set()).add(observer)
       }
     }
+
     // Stop before starting in case an observer is added and removed in the same mutation
-    for (const observer of observersToStop) observer.stop()
-    for (const observer of observersToStart) observer.start()
+    if (observersToStop) for (const observer of observersToStop) observer.stop()
+    if (observersToStart) for (const observer of observersToStart) observer.start()
   }
 })
 docObserver.observe(document, { subtree: true, childList: true })
