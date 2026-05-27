@@ -18,23 +18,18 @@
 import { Observer, shuck, hide } from 'reactorjs'
 import { getNodesBetween } from './utils.js'
 
-// Custom elements used as observer bookmark markers.
-// connectedCallback/disconnectedCallback replace the previous global MutationObserver
-// (docObserver) — the browser tracks document connectivity natively with no scanning.
+// Observer management system using custom element nodes as markers.
+// When an observer is attached to an element, a pair of marker elements are created
+// to mark the observer's "location" within the parent. These markers act as
+// proxies for the observer within the DOM. When either marker is removed, both
+// are removed along with the observer they represent.
 customElements.define('elemental-observer-start', class extends HTMLElement {
   connectedCallback () { observerGroups.get(this)?.observer.start() }
   disconnectedCallback () { observerGroups.get(this)?.observer.stop() }
   connectedMoveCallback () {} // Defining empty move callback to bypass redundant start stops
 })
 customElements.define('elemental-observer-end', class extends HTMLElement {})
-
-// Observer management system using custom element nodes as markers.
-// When an observer is attached to an element, a pair of marker elements are created
-// to mark the observer's "location" within the parent. These markers act as
-// proxies for the observer within the DOM. When either marker is removed, both
-// are removed along with the observer they represent.
 const observerGroups = new WeakMap()
-
 // Clean up observer markers when comment nodes are removed.
 // This ensures proper cleanup of observer resources when DOM changes occur.
 // This MutationObserver is attached to each element created by el instead of the document
@@ -74,11 +69,14 @@ export const el = (descriptor, ...children) => {
     if (descriptor.includes(' ')) {
       throw new TypeError(`el descriptor "${descriptor}" contains a space — use CSS selector syntax e.g. "h1.foo.bar"`)
     }
+    // Leading word of letters/digits/hyphens → tag name; absent means implicit div
     const tagMatch = descriptor.match(/^([a-zA-Z][a-zA-Z0-9-]*)/)
     const tag = tagMatch ? tagMatch[1] : 'div'
     const newElement = document.createElement(tag)
+    // Each .name token → class; CSS allows leading hyphen and underscores in identifiers
     const classMatches = descriptor.match(/\.(-?[a-zA-Z_][a-zA-Z0-9_-]*)/g)
     if (classMatches) newElement.className = classMatches.map(c => c.slice(1)).join(' ')
+    // Each #name token → id; same identifier rules as class
     const idMatches = descriptor.match(/#(-?[a-zA-Z_][a-zA-Z0-9_-]*)/g)
     if (idMatches && idMatches.length > 1) throw new TypeError(`el descriptor "${descriptor}" contains multiple ids`)
     if (idMatches) newElement.id = idMatches[0].slice(1)
@@ -92,7 +90,7 @@ export const el = (descriptor, ...children) => {
 
   // Appends a child to the current element.
   // Designed to be called recursively so a function could return a promise which resolves to an array of elements to get appended
-  // @param {String|Element|Function|Observer|Promise|Iterable} child - The child to append
+  // @param {String|Element|Function|Observer|Promise|Iterable|null|undefined} child - The child to append
   // @param {Node} insertionPoint - Optional point to insert the child before. Defaults to the end of the element.
   function append (child, insertionPoint) {
     // Validate insertion point is still attached
@@ -154,10 +152,8 @@ export const el = (descriptor, ...children) => {
           append(child.value, observerEndNode)
         }
       })
-      // Keep a mapping of the bookends to the observer so it can be cleaned up when a marker is removed.
-      // Registered here (after insertBefore, before child.call) — connectedCallback fires synchronously
-      // during insertBefore, so the entry must not exist then; child.call need not precede it because
-      // no DOM mutations happen between here and child.call so no callbacks can fire in that window.
+      // Keep a mapping of the bookends to the observer so it can be cleaned up when a marker is removed
+      // and to start/stop the observer child when the bookends gets connected/disconnected with the DOM
       const observerGroup = {
         start: observerStartNode,
         end: observerEndNode,
