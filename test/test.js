@@ -233,10 +233,10 @@ describe('Element creation', () => {
 describe('Reactivity', () => {
   it('can take an observer', (done) => {
     const result = el('.foo', ob(() => {}))
-    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start><elemental-observer-end></elemental-observer-end></div>')
     document.body.appendChild(result)
     setTimeout(() => {
-      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start><elemental-observer-end></elemental-observer-end></div>')
       result.remove()
       done()
     }, 10)
@@ -248,11 +248,11 @@ describe('Reactivity', () => {
     }))
     assert.equal(
       result.outerHTML,
-      '<div class="foo" name="bar"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-end style="display: none;"></elemental-observer-end></div>'
+      '<div class="foo" name="bar"><elemental-observer-start></elemental-observer-start><elemental-observer-end></elemental-observer-end></div>'
     )
     document.body.appendChild(result)
     setTimeout(() => {
-      assert.equal(result.outerHTML, '<div class="foo" name="bar"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div class="foo" name="bar"><elemental-observer-start></elemental-observer-start><elemental-observer-end></elemental-observer-end></div>')
       result.remove()
       done()
     }, 10)
@@ -260,10 +260,10 @@ describe('Reactivity', () => {
 
   it('can take an observer returning a string', (done) => {
     const result = el('.foo', ob(() => 'bar'))
-    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>bar<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>bar<elemental-observer-end></elemental-observer-end></div>')
     document.body.appendChild(result)
     setTimeout(() => {
-      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>bar<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>bar<elemental-observer-end></elemental-observer-end></div>')
       result.remove()
       done()
     }, 10)
@@ -271,10 +271,10 @@ describe('Reactivity', () => {
 
   it('can take an observer returning an element', (done) => {
     const result = el('.foo', ob(() => el('.bar', 'baz')))
-    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start><div class="bar">baz</div><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start><div class="bar">baz</div><elemental-observer-end></elemental-observer-end></div>')
     document.body.appendChild(result)
     setTimeout(() => {
-      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start><div class="bar">baz</div><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start><div class="bar">baz</div><elemental-observer-end></elemental-observer-end></div>')
       result.remove()
       done()
     }, 10)
@@ -282,10 +282,10 @@ describe('Reactivity', () => {
 
   it('can take an observer returning an array', (done) => {
     const result = el('.foo', ob(() => ['bar', 'baz', 'qux']))
-    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>barbazqux<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>barbazqux<elemental-observer-end></elemental-observer-end></div>')
     document.body.appendChild(result)
     setTimeout(() => {
-      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>barbazqux<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>barbazqux<elemental-observer-end></elemental-observer-end></div>')
       result.remove()
       done()
     }, 10)
@@ -297,10 +297,10 @@ describe('Reactivity', () => {
         return 'bar'
       })
     }))
-    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-start style="display: none;"></elemental-observer-start>bar<elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start><elemental-observer-start></elemental-observer-start>bar<elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end></div>')
     document.body.appendChild(result)
     setTimeout(() => {
-      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-start style="display: none;"></elemental-observer-start>bar<elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start><elemental-observer-start></elemental-observer-start>bar<elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end></div>')
       result.remove()
       done()
     }, 10)
@@ -326,10 +326,10 @@ describe('Reactivity', () => {
         })
       ]
     }))
-    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-start style="display: none;"></elemental-observer-start>bar<elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-start style="display: none;"></elemental-observer-start>baz<elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-start style="display: none;"></elemental-observer-start>qux<elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start><elemental-observer-start></elemental-observer-start><elemental-observer-start></elemental-observer-start>bar<elemental-observer-end></elemental-observer-end><elemental-observer-start></elemental-observer-start>baz<elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end><elemental-observer-start></elemental-observer-start><elemental-observer-start></elemental-observer-start>qux<elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end></div>')
     document.body.appendChild(result)
     setTimeout(() => {
-      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-start style="display: none;"></elemental-observer-start>bar<elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-start style="display: none;"></elemental-observer-start>baz<elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-start style="display: none;"></elemental-observer-start>qux<elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start><elemental-observer-start></elemental-observer-start><elemental-observer-start></elemental-observer-start>bar<elemental-observer-end></elemental-observer-end><elemental-observer-start></elemental-observer-start>baz<elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end><elemental-observer-start></elemental-observer-start><elemental-observer-start></elemental-observer-start>qux<elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end></div>')
       result.remove()
       done()
     }, 10)
@@ -343,23 +343,23 @@ describe('Reactivity', () => {
     }))
     assert.equal(
       result.outerHTML,
-      '<div class="foo" name="baz"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-end style="display: none;"></elemental-observer-end></div>'
+      '<div class="foo" name="baz"><elemental-observer-start></elemental-observer-start><elemental-observer-end></elemental-observer-end></div>'
     )
     rx.bar = 'qux'
     assert.equal(
       result.outerHTML,
-      '<div class="foo" name="baz"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-end style="display: none;"></elemental-observer-end></div>'
+      '<div class="foo" name="baz"><elemental-observer-start></elemental-observer-start><elemental-observer-end></elemental-observer-end></div>'
     )
     document.body.appendChild(result)
     setTimeout(() => {
       assert.equal(
         result.outerHTML,
-        '<div class="foo" name="qux"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-end style="display: none;"></elemental-observer-end></div>'
+        '<div class="foo" name="qux"><elemental-observer-start></elemental-observer-start><elemental-observer-end></elemental-observer-end></div>'
       )
       rx.bar = 'corge'
       assert.equal(
         result.outerHTML,
-        '<div class="foo" name="corge"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-end style="display: none;"></elemental-observer-end></div>'
+        '<div class="foo" name="corge"><elemental-observer-start></elemental-observer-start><elemental-observer-end></elemental-observer-end></div>'
       )
       result.remove()
       done()
@@ -370,14 +370,14 @@ describe('Reactivity', () => {
     const rx = new Reactor()
     rx.bar = 'baz'
     const result = el('.foo', ob(() => rx.bar))
-    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>baz<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>baz<elemental-observer-end></elemental-observer-end></div>')
     rx.bar = 'qux'
-    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>baz<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>baz<elemental-observer-end></elemental-observer-end></div>')
     document.body.appendChild(result)
     setTimeout(() => {
-      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>qux<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>qux<elemental-observer-end></elemental-observer-end></div>')
       rx.bar = 'corge'
-      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>corge<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>corge<elemental-observer-end></elemental-observer-end></div>')
       result.remove()
       done()
     }, 10)
@@ -388,17 +388,17 @@ describe('Reactivity', () => {
     rx.foo = '.foo'
     rx.bar = 'bar'
     const result = el('div', ob(() => el(rx.foo, rx.bar)))
-    assert.equal(result.outerHTML, '<div><elemental-observer-start style="display: none;"></elemental-observer-start><div class="foo">bar</div><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div><elemental-observer-start></elemental-observer-start><div class="foo">bar</div><elemental-observer-end></elemental-observer-end></div>')
     rx.foo = '.baz'
     rx.bar = 'qux'
-    assert.equal(result.outerHTML, '<div><elemental-observer-start style="display: none;"></elemental-observer-start><div class="foo">bar</div><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div><elemental-observer-start></elemental-observer-start><div class="foo">bar</div><elemental-observer-end></elemental-observer-end></div>')
     document.body.appendChild(result)
     setTimeout(() => {
-      assert.equal(result.outerHTML, '<div><elemental-observer-start style="display: none;"></elemental-observer-start><div class="baz">qux</div><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div><elemental-observer-start></elemental-observer-start><div class="baz">qux</div><elemental-observer-end></elemental-observer-end></div>')
       rx.foo = '.corge'
-      assert.equal(result.outerHTML, '<div><elemental-observer-start style="display: none;"></elemental-observer-start><div class="corge">qux</div><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div><elemental-observer-start></elemental-observer-start><div class="corge">qux</div><elemental-observer-end></elemental-observer-end></div>')
       rx.bar = 'grault'
-      assert.equal(result.outerHTML, '<div><elemental-observer-start style="display: none;"></elemental-observer-start><div class="corge">grault</div><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div><elemental-observer-start></elemental-observer-start><div class="corge">grault</div><elemental-observer-end></elemental-observer-end></div>')
       result.remove()
       done()
     }, 10)
@@ -414,14 +414,14 @@ describe('Reactivity', () => {
     }))
     assert.equal(
       result.outerHTML,
-      '<article><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-start style="display: none;"></elemental-observer-start>foo<elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end></article>'
+      '<article><elemental-observer-start></elemental-observer-start><elemental-observer-start></elemental-observer-start>foo<elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end></article>'
     )
     rx.title = 'bar'
     document.body.appendChild(result)
     setTimeout(() => {
       assert.equal(
         result.outerHTML,
-        '<article><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-start style="display: none;"></elemental-observer-start>bar<elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end></article>'
+        '<article><elemental-observer-start></elemental-observer-start><elemental-observer-start></elemental-observer-start>bar<elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end></article>'
       )
       rx.title = 'baz'
       result.remove()
@@ -466,28 +466,28 @@ describe('Reactivity', () => {
     )
     assert.equal(
       result.outerHTML,
-      '<article><h1><elemental-observer-start style="display: none;"></elemental-observer-start>foo<elemental-observer-end style="display: none;"></elemental-observer-end></h1><elemental-observer-start style="display: none;"></elemental-observer-start><p id="bar"><elemental-observer-start style="display: none;"></elemental-observer-start>Lorem ipsum dolor sit amet<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>123<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><p id="baz"><elemental-observer-start style="display: none;"></elemental-observer-start>Ut enim ad minim veniam<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>456<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><p id="qux"><elemental-observer-start style="display: none;"></elemental-observer-start>Duis aute irure dolor in reprehenderit<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>789<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end></article>'
+      '<article><h1><elemental-observer-start></elemental-observer-start>foo<elemental-observer-end></elemental-observer-end></h1><elemental-observer-start></elemental-observer-start><p id="bar"><elemental-observer-start></elemental-observer-start>Lorem ipsum dolor sit amet<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>123<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><p id="baz"><elemental-observer-start></elemental-observer-start>Ut enim ad minim veniam<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>456<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><p id="qux"><elemental-observer-start></elemental-observer-start>Duis aute irure dolor in reprehenderit<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>789<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end></article>'
     )
     document.body.appendChild(result)
     rx.title = 'corge'
     assert.equal(
       result.outerHTML,
-      '<article><h1><elemental-observer-start style="display: none;"></elemental-observer-start>corge<elemental-observer-end style="display: none;"></elemental-observer-end></h1><elemental-observer-start style="display: none;"></elemental-observer-start><p id="bar"><elemental-observer-start style="display: none;"></elemental-observer-start>Lorem ipsum dolor sit amet<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>123<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><p id="baz"><elemental-observer-start style="display: none;"></elemental-observer-start>Ut enim ad minim veniam<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>456<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><p id="qux"><elemental-observer-start style="display: none;"></elemental-observer-start>Duis aute irure dolor in reprehenderit<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>789<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end></article>'
+      '<article><h1><elemental-observer-start></elemental-observer-start>corge<elemental-observer-end></elemental-observer-end></h1><elemental-observer-start></elemental-observer-start><p id="bar"><elemental-observer-start></elemental-observer-start>Lorem ipsum dolor sit amet<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>123<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><p id="baz"><elemental-observer-start></elemental-observer-start>Ut enim ad minim veniam<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>456<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><p id="qux"><elemental-observer-start></elemental-observer-start>Duis aute irure dolor in reprehenderit<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>789<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end></article>'
     )
     await new Promise(resolve => setTimeout(resolve, 10))
     assert.equal(
       result.outerHTML,
-      '<article><h1><elemental-observer-start style="display: none;"></elemental-observer-start>corge<elemental-observer-end style="display: none;"></elemental-observer-end></h1><elemental-observer-start style="display: none;"></elemental-observer-start><p id="bar"><elemental-observer-start style="display: none;"></elemental-observer-start>Lorem ipsum dolor sit amet<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>123<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><p id="baz"><elemental-observer-start style="display: none;"></elemental-observer-start>Ut enim ad minim veniam<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>456<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><p id="qux"><elemental-observer-start style="display: none;"></elemental-observer-start>Duis aute irure dolor in reprehenderit<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>789<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end></article>'
+      '<article><h1><elemental-observer-start></elemental-observer-start>corge<elemental-observer-end></elemental-observer-end></h1><elemental-observer-start></elemental-observer-start><p id="bar"><elemental-observer-start></elemental-observer-start>Lorem ipsum dolor sit amet<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>123<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><p id="baz"><elemental-observer-start></elemental-observer-start>Ut enim ad minim veniam<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>456<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><p id="qux"><elemental-observer-start></elemental-observer-start>Duis aute irure dolor in reprehenderit<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>789<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end></article>'
     )
     rx.paragraphs[0].content = 'bloop bloop bloop'
     assert.equal(
       result.outerHTML,
-      '<article><h1><elemental-observer-start style="display: none;"></elemental-observer-start>corge<elemental-observer-end style="display: none;"></elemental-observer-end></h1><elemental-observer-start style="display: none;"></elemental-observer-start><p id="bar"><elemental-observer-start style="display: none;"></elemental-observer-start>bloop bloop bloop<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>123<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><p id="baz"><elemental-observer-start style="display: none;"></elemental-observer-start>Ut enim ad minim veniam<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>456<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><p id="qux"><elemental-observer-start style="display: none;"></elemental-observer-start>Duis aute irure dolor in reprehenderit<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>789<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end></article>'
+      '<article><h1><elemental-observer-start></elemental-observer-start>corge<elemental-observer-end></elemental-observer-end></h1><elemental-observer-start></elemental-observer-start><p id="bar"><elemental-observer-start></elemental-observer-start>bloop bloop bloop<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>123<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><p id="baz"><elemental-observer-start></elemental-observer-start>Ut enim ad minim veniam<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>456<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><p id="qux"><elemental-observer-start></elemental-observer-start>Duis aute irure dolor in reprehenderit<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>789<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end></article>'
     )
     rx.paragraphs[2].time = '987'
     assert.equal(
       result.outerHTML,
-      '<article><h1><elemental-observer-start style="display: none;"></elemental-observer-start>corge<elemental-observer-end style="display: none;"></elemental-observer-end></h1><elemental-observer-start style="display: none;"></elemental-observer-start><p id="bar"><elemental-observer-start style="display: none;"></elemental-observer-start>bloop bloop bloop<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>123<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><p id="baz"><elemental-observer-start style="display: none;"></elemental-observer-start>Ut enim ad minim veniam<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>456<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><p id="qux"><elemental-observer-start style="display: none;"></elemental-observer-start>Duis aute irure dolor in reprehenderit<elemental-observer-end style="display: none;"></elemental-observer-end></p><elemental-observer-start style="display: none;"></elemental-observer-start><h3><elemental-observer-start style="display: none;"></elemental-observer-start>987<elemental-observer-end style="display: none;"></elemental-observer-end></h3><elemental-observer-end style="display: none;"></elemental-observer-end><elemental-observer-end style="display: none;"></elemental-observer-end></article>'
+      '<article><h1><elemental-observer-start></elemental-observer-start>corge<elemental-observer-end></elemental-observer-end></h1><elemental-observer-start></elemental-observer-start><p id="bar"><elemental-observer-start></elemental-observer-start>bloop bloop bloop<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>123<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><p id="baz"><elemental-observer-start></elemental-observer-start>Ut enim ad minim veniam<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>456<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><p id="qux"><elemental-observer-start></elemental-observer-start>Duis aute irure dolor in reprehenderit<elemental-observer-end></elemental-observer-end></p><elemental-observer-start></elemental-observer-start><h3><elemental-observer-start></elemental-observer-start>987<elemental-observer-end></elemental-observer-end></h3><elemental-observer-end></elemental-observer-end><elemental-observer-end></elemental-observer-end></article>'
     )
     result.remove()
   })
@@ -511,14 +511,14 @@ describe('Shorthands', () => {
     const rx = new Reactor()
     rx.foo = 'bar'
     const result = el('.foo', ob(() => attr('id', rx.foo)))
-    assert.equal(result.outerHTML, '<div class="foo" id="bar"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div class="foo" id="bar"><elemental-observer-start></elemental-observer-start><elemental-observer-end></elemental-observer-end></div>')
     rx.foo = 'baz'
-    assert.equal(result.outerHTML, '<div class="foo" id="bar"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div class="foo" id="bar"><elemental-observer-start></elemental-observer-start><elemental-observer-end></elemental-observer-end></div>')
     document.body.appendChild(result)
     setTimeout(() => {
-      assert.equal(result.outerHTML, '<div class="foo" id="baz"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div class="foo" id="baz"><elemental-observer-start></elemental-observer-start><elemental-observer-end></elemental-observer-end></div>')
       rx.foo = 'corge'
-      assert.equal(result.outerHTML, '<div class="foo" id="corge"><elemental-observer-start style="display: none;"></elemental-observer-start><elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div class="foo" id="corge"><elemental-observer-start></elemental-observer-start><elemental-observer-end></elemental-observer-end></div>')
       result.remove()
       done()
     }, 10)
@@ -549,18 +549,18 @@ describe('Clean up', () => {
     const rx = new Reactor()
     rx.bar = 'baz'
     const result = el('.foo', ob(() => rx.bar))
-    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>baz<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>baz<elemental-observer-end></elemental-observer-end></div>')
     rx.bar = 'qux'
-    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>baz<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>baz<elemental-observer-end></elemental-observer-end></div>')
     document.body.appendChild(result)
     setTimeout(() => {
-      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>qux<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>qux<elemental-observer-end></elemental-observer-end></div>')
       rx.bar = 'corge'
-      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>corge<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>corge<elemental-observer-end></elemental-observer-end></div>')
       result.remove()
       setTimeout(() => {
         rx.bar = 'grault'
-        assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>corge<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+        assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>corge<elemental-observer-end></elemental-observer-end></div>')
         done()
       }, 10)
     }, 10)
@@ -570,7 +570,7 @@ describe('Clean up', () => {
     const rx = new Reactor()
     rx.bar = 'baz'
     const result = el('.foo', ob(() => rx.bar))
-    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>baz<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>baz<elemental-observer-end></elemental-observer-end></div>')
     result.childNodes[0].remove()
     setTimeout(() => {
       assert.equal(result.outerHTML, '<div class="foo">baz</div>')
@@ -582,11 +582,11 @@ describe('Clean up', () => {
     const rx = new Reactor()
     rx.bar = 'baz'
     const result = el('.foo', ob(() => rx.bar))
-    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>baz<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+    assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>baz<elemental-observer-end></elemental-observer-end></div>')
     document.body.appendChild(result)
     setTimeout(() => {
       rx.bar = 'qux'
-      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>qux<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+      assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>qux<elemental-observer-end></elemental-observer-end></div>')
       result.childNodes[0].remove()
       setTimeout(() => {
         assert.equal(result.outerHTML, '<div class="foo">qux</div>')
@@ -608,7 +608,7 @@ describe('Clean up', () => {
       document.body.appendChild(result)
       setTimeout(() => {
         rx.bar = 'qux'
-        assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start style="display: none;"></elemental-observer-start>qux<elemental-observer-end style="display: none;"></elemental-observer-end></div>')
+        assert.equal(result.outerHTML, '<div class="foo"><elemental-observer-start></elemental-observer-start>qux<elemental-observer-end></elemental-observer-end></div>')
         result.remove()
         done()
       }, 10)

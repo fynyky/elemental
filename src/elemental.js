@@ -28,6 +28,12 @@ customElements.define('elemental-observer-start', class extends HTMLElement {
 })
 customElements.define('elemental-observer-end', class extends HTMLElement {})
 
+// Hide the marker elements via a stylesheet rather than setting style per-instance.
+// (Custom element constructors cannot modify attributes, including style.)
+const _markerStyle = document.createElement('style')
+_markerStyle.textContent = 'elemental-observer-start,elemental-observer-end{display:none}'
+document.head.appendChild(_markerStyle)
+
 // Observer management system using custom element nodes as markers.
 // When an observer is attached to an element, a pair of marker elements are created
 // to mark the observer's "location" within the parent. These markers act as
@@ -140,8 +146,6 @@ export const el = (descriptor, ...children) => {
     if (child instanceof Observer) {
       const observerStartNode = document.createElement('elemental-observer-start')
       const observerEndNode = document.createElement('elemental-observer-end')
-      observerStartNode.style.display = 'none'
-      observerEndNode.style.display = 'none'
       const metaObserver = new Observer(() => {
         // Kickoff the observer child with a context of self
         // This needs to be done in the metaObserver to avoid infinite loops
