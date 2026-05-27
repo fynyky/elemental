@@ -21,11 +21,11 @@ import { getNodesBetween } from './utils.js'
 // Custom elements used as observer bookmark markers.
 // connectedCallback/disconnectedCallback replace the previous global MutationObserver
 // (docObserver) — the browser tracks document connectivity natively with no scanning.
-class ElementalObserverStart extends HTMLElement {
+customElements.define('elemental-observer-start', class extends HTMLElement {
   connectedCallback () { observerGroups.get(this)?.observer.start() }
   disconnectedCallback () { observerGroups.get(this)?.observer.stop() }
-}
-customElements.define('elemental-observer-start', ElementalObserverStart)
+  connectedMoveCallback () {} // Defining empty move callback to bypass redundant start stops
+})
 customElements.define('elemental-observer-end', class extends HTMLElement {})
 
 // Observer management system using custom element nodes as markers.
