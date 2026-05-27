@@ -10,19 +10,19 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-      id-token: write
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Run Claude Code Review
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
-            Please review this pull request and leave a code review comment. Look at the diff and:
+            Review pull request #${{ github.event.pull_request.number }} in this repository.
+
+            Run `git diff origin/${{ github.event.pull_request.base.ref }}...HEAD` to see the changes, then:
             1. Summarize what the PR does
             2. Identify any bugs, logic errors, or correctness issues
             3. Flag security concerns if any
@@ -30,4 +30,7 @@ jobs:
             5. Anything missing (tests, docs, etc.)
             6. Give an overall assessment
 
-            Be concise and constructive. Post your review as a PR comment.
+            Post your review by running:
+            gh pr comment ${{ github.event.pull_request.number }} --body "your review text here"
+
+            Be concise and constructive.
