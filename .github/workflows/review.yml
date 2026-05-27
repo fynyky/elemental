@@ -1,7 +1,8 @@
 name: Claude PR Review
+
 on:
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, reopened]
 
 jobs:
   review:
@@ -11,16 +12,22 @@ jobs:
       pull-requests: write
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 1
-      - uses: anthropics/claude-code-action@v1
+          fetch-depth: 0
+
+      - name: Run Claude Code Review
+        uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
-            Review this pull request and leave a thorough code review comment. Cover:
-            - Bugs or logic errors
-            - Security issues
-            - Performance concerns
-            - Code style and readability
-            - Anything missing (tests, docs, etc.)
+            Please review this pull request and leave a code review comment. Look at the diff and:
+            1. Summarize what the PR does
+            2. Identify any bugs, logic errors, or correctness issues
+            3. Flag security concerns if any
+            4. Note code style or maintainability issues
+            5. Anything missing (tests, docs, etc.)
+            6. Give an overall assessment
+
+            Be concise and constructive. Post your review as a PR comment.
