@@ -146,10 +146,10 @@ export const el = (descriptor, ...children) => {
     if (child instanceof Observer) {
       const observerStartNode = document.createElement('elemental-observer-start')
       const observerEndNode = document.createElement('elemental-observer-end')
+      // Insert before registering in observerGroups so connectedCallback no-ops during insertion
+      self.insertBefore(observerStartNode, insertionPoint)
+      self.insertBefore(observerEndNode, insertionPoint)
       const metaObserver = new Observer(() => {
-        // Kickoff the observer child with a context of self
-        // This needs to be done in the metaObserver to avoid infinite loops
-        // If called outside of here, the child could form a dependency on an external observer
         if (observerStartNode.parentNode === self && observerEndNode.parentNode === self) {
           const oldChildren = getNodesBetween(observerStartNode, observerEndNode)
           for (const oldChild of oldChildren) {
@@ -158,8 +158,10 @@ export const el = (descriptor, ...children) => {
           append(child.value, observerEndNode)
         }
       })
-      // Keep a mapping of the bookends to the observer
-      // Lets the observer be cleaned up when the owning marker is removed
+      // Keep a mapping of the bookends to the observer so it can be cleaned up when a marker is removed.
+      // Registered here (after insertBefore, before child.call) — connectedCallback fires synchronously
+      // during insertBefore, so the entry must not exist then; child.call need not precede it because
+      // no DOM mutations happen between here and child.call so no callbacks can fire in that window.
       const observerGroup = {
         start: observerStartNode,
         end: observerEndNode,
@@ -172,16 +174,13 @@ export const el = (descriptor, ...children) => {
           this.metaObserver.stop()
         }
       }
-
-      self.insertBefore(observerStartNode, insertionPoint)
-      self.insertBefore(observerEndNode, insertionPoint)
-      hide(() => child.call(self, self))
-      metaObserver.start()
-      // Register after metaObserver.start() so connectedCallback (which fires synchronously
-      // during insertBefore above) cannot call observer.start() before initialization
       observerGroups.set(observerStartNode, observerGroup)
       observerGroups.set(observerEndNode, observerGroup)
+      // Start the observer child giving it the context of self
+      // Metaobserver only starts after the observer child has a value
       // If it is not yet in the document then stop observer from triggering further
+      hide(() => child.call(self, self))
+      metaObserver.start()
       if (!document.contains(self)) child.stop()
       return
     }
