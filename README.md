@@ -63,6 +63,7 @@ import {
   el,
   ob,
   attr,
+  on,
   bind,
   Reactor,
   Observer,
@@ -74,7 +75,7 @@ import {
 
 It is also available directly from [unpkg](https://unpkg.com). You can import it in JavaScript using
 ```javascript
-import { el, attr, bind, ob, Reactor, Observer, hide, batch, shuck } from 'https://unpkg.com/@fynyky/elemental'
+import { el, attr, on, bind, ob, Reactor, Observer, hide, batch, shuck } from 'https://unpkg.com/@fynyky/elemental'
 ```
 
 
@@ -217,6 +218,22 @@ el('h1', attr('id', 'foo'))
 
 ```html
 <h1 id="foo"></h1>
+```
+
+Similarly the `on(event, fn)` function is provided as a shorthand for
+
+```javascript
+$ => { $.addEventListener(event, fn) }
+```
+
+This allows easy attaching of event listeners like this
+
+```javascript
+el('button', on('click', () => console.log('clicked!')))
+```
+
+```html
+<button></button>
 ```
 
 Similarly the `bind(reactor, key)` function is provided as a shorthand for
@@ -669,7 +686,7 @@ Summary
 
 ```javascript
 import { 
-  el, attr, bind, ob,
+  el, attr, on, bind, ob,
   Reactor, Observer, hide, batch, shuck 
 } from '@fynyky/elemental'
 
@@ -741,6 +758,11 @@ el('h1', ['foo', 'bar', 'qux']) // Creates <h1>foobarqux</h1>
 // These 2 are equivalent
 el('h1', attr('id', 'foo'))
 el('h1', self => self.setAttribute('id', 'foo'))
+
+// on is shorthand for addEventListener
+// These 2 are equivalent
+el('button', on('click', handler))
+el('button', self => self.addEventListener('click', handler))
 
 // bind is shorthand for 2 way binding with a reactor
 // These 2 are equivalent

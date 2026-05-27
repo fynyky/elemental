@@ -242,6 +242,18 @@ export function attr (attribute, value) {
   }
 }
 
+// Shorthand function to add event listeners to elements.
+// Usage: el('button', on('click', handler))
+//
+// @param {string} event - Event name
+// @param {Function} fn - Event handler function
+// @returns {Function} Function that adds the event listener when called
+export function on (event, fn) {
+  return ($) => {
+    $.addEventListener(event, fn)
+  }
+}
+
 // Shorthand function to bind input elements to reactor values.
 // Usage: el('input', attr('type', 'text'), bind(rx, 'foo'))
 //
