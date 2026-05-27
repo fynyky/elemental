@@ -17,7 +17,7 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          direct_prompt: |
+          prompt: |
             Review this pull request and leave a thorough code review comment. Cover:
             - Bugs or logic errors
             - Security issues
