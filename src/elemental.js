@@ -16,49 +16,22 @@
 // This enables automatic UI updates when the underlying data changes.
 
 import { Observer, shuck, hide } from 'reactorjs'
-import { getAllComments, getNodesBetween } from './utils.js'
+import { getNodesBetween } from './utils.js'
 
-// Automatically start/stop observers when elements are added/removed from the DOM.
-// This prevents "orphan" observers from staying alive and updating nodes that are no longer relevant.
-// Note: MutationObserver is native browser class and unrelated to reactor.js Observers
-const docObserver = new MutationObserver((mutationList) => {
-  for (const mutationRecord of mutationList) {
-    let observersToStop = null
-    let observersToStart = null
+// Custom elements used as observer bookmark markers.
+// connectedCallback/disconnectedCallback replace the previous global MutationObserver
+// (docObserver) — the browser tracks document connectivity natively with no scanning.
+class ElementalObserverStart extends HTMLElement {
+  connectedCallback () { observerGroups.get(this)?.observer.start() }
+  disconnectedCallback () { observerGroups.get(this)?.observer.stop() }
+}
+customElements.define('elemental-observer-start', ElementalObserverStart)
+customElements.define('elemental-observer-end', class extends HTMLElement {})
 
-    for (const removedNode of mutationRecord.removedNodes) {
-      if (removedNode.nodeType === Node.TEXT_NODE) continue
-      const comments = removedNode.nodeType === Node.COMMENT_NODE
-        ? [removedNode]
-        : getAllComments(removedNode)
-      for (const comment of comments) {
-        const observer = observerGroups.get(comment)?.observer
-        if (observer) (observersToStop ??= new Set()).add(observer)
-      }
-    }
-
-    for (const addedNode of mutationRecord.addedNodes) {
-      if (addedNode.nodeType === Node.TEXT_NODE) continue
-      const comments = addedNode.nodeType === Node.COMMENT_NODE
-        ? [addedNode]
-        : getAllComments(addedNode)
-      for (const comment of comments) {
-        const observer = observerGroups.get(comment)?.observer
-        if (observer) (observersToStart ??= new Set()).add(observer)
-      }
-    }
-
-    // Stop before starting in case an observer is added and removed in the same mutation
-    if (observersToStop) for (const observer of observersToStop) observer.stop()
-    if (observersToStart) for (const observer of observersToStart) observer.start()
-  }
-})
-docObserver.observe(document, { subtree: true, childList: true })
-
-// Observer management system using comment nodes as markers.
-// When an observer is attached to an element, a pair of comment nodes are created
-// to mark the observer's "location" within the parent. These comments act as
-// proxies for the observer within the DOM. When either comment is removed, both
+// Observer management system using custom element nodes as markers.
+// When an observer is attached to an element, a pair of marker elements are created
+// to mark the observer's "location" within the parent. These markers act as
+// proxies for the observer within the DOM. When either marker is removed, both
 // are removed along with the observer they represent.
 const observerGroups = new WeakMap()
 
@@ -162,16 +135,13 @@ export const el = (descriptor, ...children) => {
       return
     }
 
-    // Observers get their position marked with a pair of comments
-    // Every time the Observer is triggered the content between the comments is replaced
+    // Observers get their position marked with a pair of custom element markers.
+    // Every time the Observer is triggered the content between the markers is replaced.
     if (child instanceof Observer) {
-      // Create comment markers to define the observer's domain
-      // Observe the observer to append the results
-      // Check if the bookmarks are still attached before acting
-      // Clear everything in between the bookmarks (including other observers)
-      // Then insert new content between them
-      const observerStartNode = document.createComment('observerStart')
-      const observerEndNode = document.createComment('observerEnd')
+      const observerStartNode = document.createElement('elemental-observer-start')
+      const observerEndNode = document.createElement('elemental-observer-end')
+      observerStartNode.style.display = 'none'
+      observerEndNode.style.display = 'none'
       const metaObserver = new Observer(() => {
         // Kickoff the observer child with a context of self
         // This needs to be done in the metaObserver to avoid infinite loops
@@ -185,7 +155,7 @@ export const el = (descriptor, ...children) => {
         }
       })
       // Keep a mapping of the bookends to the observer
-      // Lets the observer be cleaned up when the owning comment is removed
+      // Lets the observer be cleaned up when the owning marker is removed
       const observerGroup = {
         start: observerStartNode,
         end: observerEndNode,
@@ -198,13 +168,15 @@ export const el = (descriptor, ...children) => {
           this.metaObserver.stop()
         }
       }
-      observerGroups.set(observerStartNode, observerGroup)
-      observerGroups.set(observerEndNode, observerGroup)
 
       self.insertBefore(observerStartNode, insertionPoint)
       self.insertBefore(observerEndNode, insertionPoint)
       hide(() => child.call(self, self))
       metaObserver.start()
+      // Register after metaObserver.start() so connectedCallback (which fires synchronously
+      // during insertBefore above) cannot call observer.start() before initialization
+      observerGroups.set(observerStartNode, observerGroup)
+      observerGroups.set(observerEndNode, observerGroup)
       // If it is not yet in the document then stop observer from triggering further
       if (!document.contains(self)) child.stop()
       return
