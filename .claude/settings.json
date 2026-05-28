@@ -1,6 +1,5 @@
 {
   "permissions": {
-    "defaultMode": "bypassPermissions",
     "deny": [
       "Bash(git push --force*)",
       "Bash(git push -f*)",

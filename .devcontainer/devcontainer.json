@@ -13,7 +13,10 @@
     "vscode": {
       "extensions": [
         "anthropic.claude-code"
-      ]
+      ],
+      "settings": {
+        "claude.permissions": "bypassPermissions"
+      }
     }
   }
 }
