@@ -28,7 +28,7 @@ jobs:
           prompt: |
             REPO: ${{ github.repository }}
             PR NUMBER: ${{ github.event.pull_request.number }}
-            Review this pull request. Cover:
+            Review this pull request and post feedback as a PR comment using `gh pr comment`. Cover:
             1. One-sentence summary of what this PR does
             2. Bugs or logic errors
             3. Security concerns
