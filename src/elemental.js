@@ -23,14 +23,20 @@ import { getNodesBetween } from './utils.js'
 // to mark the observer's "location" within the parent. These markers act as
 // proxies for the observer within the DOM. When either marker is removed, both
 // are removed along with the observer they represent.
-customElements.define('elemental-observer-start', class extends HTMLElement {
-  connectedCallback () { observerGroups.get(this)?.observer.start() }
-  disconnectedCallback () { observerGroups.get(this)?.observer.stop() }
-  connectedMoveCallback () {} // Defining empty move callback to bypass redundant start stops
-})
-customElements.define('elemental-observer-end', class extends HTMLElement {})
+// Guarded against double-registration so re-importing the module (HMR, test harnesses
+// that reset modules, or two copies of the package on the page) doesn't throw.
+if (!customElements.get('elemental-observer-start')) {
+  customElements.define('elemental-observer-start', class extends HTMLElement {
+    connectedCallback () { observerGroups.get(this)?.observer.start() }
+    disconnectedCallback () { observerGroups.get(this)?.observer.stop() }
+    connectedMoveCallback () {} // Defining empty move callback to bypass redundant start stops
+  })
+}
+if (!customElements.get('elemental-observer-end')) {
+  customElements.define('elemental-observer-end', class extends HTMLElement {})
+}
 const observerGroups = new WeakMap()
-// Clean up observer markers when comment nodes are removed.
+// Clean up observer markers when a marker is removed from its parent.
 // This ensures proper cleanup of observer resources when DOM changes occur.
 // This MutationObserver is attached to each element created by el instead of the document
 // so that we can clean up observer markers even when the element is removed from the DOM
