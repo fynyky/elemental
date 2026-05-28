@@ -20,18 +20,17 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_args: --allowedTools "Bash(gh pr comment:*),Bash(gh pr diff:*),Bash(gh pr view:*)"
           prompt: |
-            Review pull request #${{ github.event.pull_request.number }} in this repository.
+            REPO: ${{ github.repository }}
+            PR NUMBER: ${{ github.event.pull_request.number }}
 
-            Run `git diff origin/${{ github.event.pull_request.base.ref }}...HEAD` to see the changes, then:
-            1. Summarize what the PR does
-            2. Identify any bugs, logic errors, or correctness issues
-            3. Flag security concerns if any
-            4. Note code style or maintainability issues
+            Review this pull request and post feedback as a PR comment using `gh pr comment`. Cover:
+            1. What the PR does
+            2. Bugs or logic errors
+            3. Security concerns
+            4. Code quality and maintainability
             5. Anything missing (tests, docs, etc.)
-            6. Give an overall assessment
-
-            Post your review by running:
-            gh pr comment ${{ github.event.pull_request.number }} --body "your review text here"
+            6. Overall assessment
 
             Be concise and constructive.
