@@ -1,18 +1,18 @@
-name: Claude PR Review
+name: Claude Code Review
 
 on:
   pull_request:
     types: [opened, reopened]
 
 jobs:
-  review:
+  claude:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
       issues: write
       id-token: write
-      actions: read 
+      actions: read # Required for Claude to read CI results on PRs
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -24,12 +24,3 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: |
-            Do a code review for this pull request covering:
-            1. A summary of what it does
-            2. Bugs or logic errors
-            3. Security concerns
-            4. Code quality and maintainability
-            5. Anything missing (tests, docs, etc.)
-            6. Overall assessment
-            Be concise and constructive.
