@@ -24,3 +24,13 @@ jobs:
         uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Review this pull request. Cover:
+            1. One-sentence summary of what this PR does
+            2. Bugs or logic errors
+            3. Security concerns
+            4. Code quality and maintainability
+            5. Missing tests or docs
+            6. Overall verdict (approve / needs changes)
+          
+            Be concise and constructive. Flag blockers clearly.
