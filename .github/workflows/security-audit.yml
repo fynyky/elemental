@@ -6,13 +6,13 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: security-audit
+  group: ${{ github.workflow }}
   cancel-in-progress: false
 
 jobs:
   security-audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     permissions:
       contents: read
       issues: write
@@ -20,18 +20,19 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4
 
-      - name: Install Semgrep
-        run: python3 -m pip install --quiet semgrep==1.164.0
+      - name: Install audit tools
+        run: python3 -m pip install --quiet semgrep==1.164.0 pip-audit
 
       - name: Ensure security label exists
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh label create security --color d73a4a --description "Security vulnerability" --force 2>/dev/null || true
+        run: gh label create security --color d73a4a --description "Security vulnerability" --force
 
       - name: Claude security audit and issue creation
         uses: anthropics/claude-code-action@537ffff2eff706bd7e3e1c3daf2d4b39067a9f85  # v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          github_token: ${{ github.token }}
           track_progress: true
 
           prompt: |
@@ -58,7 +59,7 @@ jobs:
             Before running any tools, actively research what vulnerabilities are currently
             known for the specific packages, versions, and frameworks used in this repo.
             Trusted starting points include the NIST NVD, GitHub Advisory Database, and OWASP,
-            but don't limit yourself to these — follow the research wherever it leads.
+            but don't limit yourself to these — search broadly for recent advisories and PoCs.
             Use what you find here to guide your analysis in every subsequent step — you are
             testing for specific, known threats, not just running generic scanners.
 
@@ -129,13 +130,10 @@ jobs:
             Group closely related findings into one issue. Skip purely informational findings
             with no security impact. Do not create duplicate issues.
 
-            If no genuine vulnerabilities are found, create a single summary issue:
-            - Title: `Security Audit ${{ github.run_id }}: No vulnerabilities found`
-            - Label: `security`
-            - Body: brief summary of what was scanned and confirmation no issues were found.
+            If no genuine vulnerabilities are found, do not create any issues. Instead,
+            print a brief summary to stdout of what was scanned and confirm no issues were found.
 
-          claude_args: |
-            --allowedTools "Bash,WebSearch,WebFetch"
+          claude_args: '--allowedTools "Bash,WebSearch"'
 
       - name: Upload audit artifacts
         if: always()
