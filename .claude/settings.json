@@ -1,6 +1,8 @@
 {
   "permissions": {
     "deny": [
+      "Write(.claude/settings.json)",
+      "Write(.claude/settings.local.json)",
       "Bash(git push --force*)",
       "Bash(git push -f*)",
       "Bash(git push origin --delete *)",
@@ -10,9 +12,7 @@
       "Bash(git push *:refs/heads/master)",
       "Bash(git push *:refs/heads/main)",
       "Bash(git push *:refs/heads/release*)",
-      "Bash(gh pr merge *)",
-      "Write(.claude/settings.json)",
-      "Write(.claude/settings.local.json)" 
+      "Bash(gh pr merge *)"
     ]
   }
 }
