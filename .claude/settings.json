@@ -3,6 +3,12 @@
     "deny": [
       "Write(.claude/settings.json)",
       "Write(.claude/settings.local.json)",
+      "Edit(.claude/settings.json)",
+      "Edit(.claude/settings.local.json)",
+      "MultiEdit(.claude/settings.json)",
+      "MultiEdit(.claude/settings.local.json)",
+      "NotebookEdit(.claude/settings.json)",
+      "NotebookEdit(.claude/settings.local.json)",
       "Bash(git push --force*)",
       "Bash(git push -f*)",
       "Bash(git push origin --delete *)",
@@ -12,7 +18,9 @@
       "Bash(git push *:refs/heads/master)",
       "Bash(git push *:refs/heads/main)",
       "Bash(git push *:refs/heads/release*)",
-      "Bash(gh pr merge *)"
+      "Bash(gh pr merge *)",
+      "Bash(*.claude/settings.json*)",
+      "Bash(*.claude/settings.local.json*)"
     ]
   }
 }
