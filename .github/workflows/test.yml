@@ -14,4 +14,8 @@ jobs:
         with:
           node-version: 24
       - run: npm ci
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ hashFiles('package-lock.json') }}
       - run: npm test
