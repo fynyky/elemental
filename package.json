@@ -43,5 +43,16 @@
   },
   "homepage": "https://github.com/fynyky/elemental#readme",
   "author": "Li Hongyi",
-  "license": "MIT"
+  "license": "MIT",
+  "keywords": [
+    "reactive",
+    "ui",
+    "dom",
+    "frontend",
+    "declarative",
+    "vanilla-js",
+    "javascript",
+    "reactive-programming",
+    "observer"
+  ]
 }
