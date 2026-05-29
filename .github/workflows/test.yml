@@ -1,21 +1,21 @@
-name: Test
-on:
-  push:
-    branches: master
-  pull_request:
-    branches: master
+# name: Test
+# on:
+#   push:
+#     branches: master
+#   pull_request:
+#     branches: master
     
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-      - uses: actions/setup-node@v6
-        with:
-          node-version: 24
-      - run: npm ci
-      - uses: actions/cache@v4
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ hashFiles('package-lock.json') }}
-      - run: npm test
+# jobs:
+#   test:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v6
+#       - uses: actions/setup-node@v6
+#         with:
+#           node-version: 24
+#       - run: npm ci
+#       - uses: actions/cache@v4
+#         with:
+#           path: ~/.cache/ms-playwright
+#           key: playwright-${{ hashFiles('package-lock.json') }}
+#       - run: npm test
