@@ -1,6 +1,6 @@
 {
   "name": "@fynyky/elemental",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Simple reactive ui building without frameworks",
   "type": "module",
   "main": "dist/main.js",

@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 
 import { assert } from 'chai'
-import { el, attr, bind, ob, Reactor } from '../src/index.js'
+import { el, attr, on, bind, ob, Reactor } from '../src/index.js'
 
 afterEach(() => {
   document.body.innerHTML = ''
@@ -522,6 +522,13 @@ describe('Shorthands', () => {
       result.remove()
       done()
     }, 10)
+  })
+
+  it('attaches event listeners using on', () => {
+    let clicked = false
+    const result = el('button', on('click', () => { clicked = true }))
+    result.click()
+    assert.equal(clicked, true)
   })
 
   it('does 2 way binding', (done) => {
